@@ -26,12 +26,13 @@ const WelcomeScreen = () => {
       </View>
 
       <View className="  items-center  justify-end pb-10 ">
-        <Text variant="heading" className="mb-1 text-foreground">Skip the bus</Text>
-        <Text variant="heading" color={"secondary"} className="mb-5 text-foreground">Grab a ride along now</Text>
+        <Text variant="heading" className="mb-1 text-foreground font-header ">Skip the bus</Text>
+        <Text variant="heading" color={"secondary"} className="mb-5 text-foreground font-header ">Grab a ride along now</Text>
 
         <Button onPress={() => {
           router.push({
-            pathname: "/(auth)/login",
+            pathname: "(verification)/photo",
+
             // pathname: "/rideHelp",
             params: {
               type: "rider"
@@ -43,7 +44,7 @@ const WelcomeScreen = () => {
           rounded="base"
           className="w-4/5 mb-2 flex flex-row justify-center items-center"
         >
-          <Text variant={"subhead"} className='font-semibold text-white'> Get started</Text>
+          <Text variant={"mediumTitle"} className='font-semibold text-white'> Get started</Text>
         </Button>
 
         <Button
@@ -61,10 +62,10 @@ const WelcomeScreen = () => {
             })
           }}
         >
-          <Text variant="body" className="text-foreground font-medium">
+          <Text variant="smallTitle" className="text-foreground font-medium ">
             Ready to earn?
           </Text>
-          <Text variant="body" className="text-foreground font-semibold">Become a driver</Text>
+          <Text variant="smallTitle" className="text-foreground font-semibold">Become a driver</Text>
         </Button>
       </View>
     </View>

@@ -1,4 +1,4 @@
-import { Search, ChevronDown, Star, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, CarTaxiFront, ArrowRight, ArrowLeft, X, CircleUserRound, CalendarDays, BarChart, MoonStar, Locate, Radius, UserRound, CreditCard, UserPlus, MessageSquare, UserCog, Luggage, Wallet, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronUpCircle, ChevronDownCircle, Clock3, Dot, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen } from 'lucide-react-native';
+import { Search, ChevronDown, Star, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, CarTaxiFront, ArrowRight, ArrowLeft, X, CircleUserRound, CalendarDays, BarChart, MoonStar, Locate, Radius, UserRound, CreditCard, UserPlus, MessageSquare, UserCog, Luggage, Wallet, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronUpCircle, ChevronDownCircle, Clock3, Dot, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen, Trash2, User } from 'lucide-react-native';
 
 
 import { iconWithClassName } from './iconWithClassName';
@@ -51,7 +51,9 @@ iconWithClassName(SlidersHorizontal);
 iconWithClassName(CalendarClock)
 iconWithClassName(Clock)
 iconWithClassName(Pen)
+iconWithClassName(Trash2)
+iconWithClassName(User)
 
 
 
-export { Search, ChevronDown, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, ArrowRight, ArrowLeft, X, CalendarDays, BarChart, CircleUserRound, MoonStar, Locate, CreditCard, UserRound, UserPlus, MessageSquare, Wallet, Luggage, UserCog, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronDownCircle, ChevronUpCircle, Clock3, Dot, Star, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen };
+export { Search, ChevronDown, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, ArrowRight, ArrowLeft, X, CalendarDays, BarChart, CircleUserRound, MoonStar, Locate, CreditCard, UserRound, UserPlus, MessageSquare, Wallet, Luggage, UserCog, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronDownCircle, ChevronUpCircle, Clock3, Dot, Star, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen, User, Trash2 };

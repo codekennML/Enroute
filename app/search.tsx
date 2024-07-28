@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/seperator'
 // import { BriefcaseBusiness, Ellipsis, Home, Locate, Plane, CreditCard, UserPlus, UserRound, MessageSquare } from '@/lib/icons/icons'
 import { Input } from '@/components/ui/input'
 // import { useSheetRef } from '@/components/ui/sheets'
-import { Location, Prediction, SearchProps, TripInfo } from '@/types/types'
+import { Location, Prediction, SearchProps } from '@/types/types'
 // import TripData from '@/components/ui/sheets/tripInfo'
 import { selectSearchInfo, setDestination, setOrigin } from '@/redux/slices/search'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
@@ -75,7 +75,7 @@ const search = () => {
     }
   );
 
-  const handleFocus = (input: "origin" | "destination") => {
+  const handleFocus = (input: "origin" | "destination" | undefined) => {
     if (input !== "origin") {
       setInputType("destination");
       setCanUpdateDestinationNameDebounced(true);
@@ -264,9 +264,8 @@ const search = () => {
 
               <Input
                 value={userLocationName}
-
                 onFocus={() => handleFocus('origin')}
-                onBlur={() => handleFocus(null)}
+                onBlur={() => handleFocus(undefined)}
                 className={`  border-none border-0  h-10 bg-accent border-transparent font-medium text-[8px]  cursor:text-gray-500 text-muted-foreground px-2 py-1 ${focusedInput === "origin" ? "border-2  border-blue-600" : ""}`}
                 placeholder="Retrieving location..."
                 onChangeText={(text) => handleChange(text, "origin")}
@@ -302,7 +301,7 @@ const search = () => {
                 className={` border-none border-0  h-10 bg-accent border-transparent font-medium text-[8px]  cursor:text-gray-500 text-muted-foreground px-2 py-1 ${focusedInput === "destination" ? "border-2  border-blue-600" : ""}`}
                 placeholder="Search for bus stop"
                 onFocus={() => handleFocus('destination')}
-                onBlur={() => handleFocus(null)}
+                onBlur={() => handleFocus(undefined)}
                 // onSubmitEditing={(e) => handleDestinationSubmit(e.nativeEvent.text)}
                 onChangeText={(text) => handleChange(text, "destination")}
                 aria-labelledbyledBy='inputLabel'

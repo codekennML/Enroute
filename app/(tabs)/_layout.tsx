@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { useColorScheme } from 'nativewind';
 import { COLOR_THEME } from '@/lib/constants';
-import { Home, CalendarDays, BarChart, CircleUserRound } from '@/lib/icons/icons';
+import { Home, CalendarDays, BarChart, CircleUserRound, CalendarClock } from '@/lib/icons/icons';
 import { useGetGeocodedLocationQuery } from '@/redux/api/maps';
 import useLocation from '@/lib/useLocation';
 import { setOrigin } from '@/redux/slices/search';
@@ -26,7 +26,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <Home color={color} size={28} className={`${focused ?"text-foreground" :   "text-primary" }`} />
+            <Home color={color} size={28} className={`${focused ? "text-foreground" : "text-primary"}`} />
             // <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
           ),
         }}
@@ -38,7 +38,7 @@ export default function TabLayout() {
         options={{
           title: 'Schedule',
           tabBarIcon: ({ color, focused }) => (
-            <CalendarDays color={color} size={28} className={`${focused ?"text-foreground" :   "text-primary" }`} />
+            <CalendarClock color={color} size={28} className={`${focused ? "text-foreground" : "text-primary"}`} />
             // <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),
         }}
@@ -49,7 +49,7 @@ export default function TabLayout() {
         options={{
           title: 'Activity',
           tabBarIcon: ({ color, focused }) => (
-            <BarChart color={color} size={28} className={`${focused ?"text-foreground" :   "text-primary" }`} />
+            <BarChart color={color} size={28} className={`${focused ? "text-foreground" : "text-primary"}`} />
             // <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),
         }}
@@ -61,7 +61,7 @@ export default function TabLayout() {
         options={{
           title: 'Account',
           tabBarIcon: ({ color, focused }) => (
-            <CircleUserRound className={`${focused ?"text-foreground" :   "text-primary" }`} size={28} />
+            <CircleUserRound className={`${focused ? "text-foreground" : "text-primary"}`} size={28} />
             // <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),
         }}

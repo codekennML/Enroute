@@ -25,7 +25,7 @@ const otpChannel = () => {
   const phoneInputRef = useRef<PhoneInput | null>(null)
 
   return (
-    <View className=" bg-white p-4  flex flex-col h-full">
+    <View className="  p-4  flex flex-col h-full">
       <View className='flex-1 h-full mt-20'>
         <Text variant="heading" className="text-foreground mb-2">One Time Password</Text>
         <Text variant="body" className="text-foreground mb-6 font-medium">

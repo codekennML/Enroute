@@ -36,7 +36,11 @@ import { useGetGeocodedLocationQuery } from '@/redux/api/maps';
 import axios from 'axios';
 import NetInfo from "@react-native-community/netinfo";
 import Ionicons from '@expo/vector-icons/Ionicons';
-
+import {
+  useCameraDevice,
+  useCameraFormat,
+  useCameraPermission
+} from 'react-native-vision-camera'
 
 
 
@@ -56,10 +60,11 @@ export { ErrorBoundary } from 'expo-router';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+
   const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   const [countryCode, setCountryCode] = useState("")
-
+  const { hasPermission, requestPermission } = useCameraPermission()
 
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -93,7 +98,6 @@ export default function RootLayout() {
 
       setIsColorSchemeLoaded(true);
 
-
       const fetchCountry = async (ipaddress: string) => {
         try {
           // console.log(ipaddress)
@@ -123,6 +127,7 @@ export default function RootLayout() {
 
               if (state.isConnected && state.details) {
                 // console.log(state.details)
+                // @ts-expect-error ts error inferring type
                 const ipAddress = state.details?.ipAddress;
                 // console.log('IP Address:', ipAddress);
                 return ipAddress
@@ -162,6 +167,9 @@ export default function RootLayout() {
       // console.log("Emama")
       setCountryData();
 
+
+
+
     };
 
     loadTheme().finally(() => {
@@ -175,7 +183,6 @@ export default function RootLayout() {
     console.log("Font not loaded")
     return null;
   }
-
 
   //     const dispatch = useDispatch();
 
@@ -201,9 +208,9 @@ export default function RootLayout() {
           <ThemeProvider value={colorScheme === 'light' ? LIGHT_THEME : DARK_THEME}>
             <BottomSheetModalProvider>
 
-              <Stack screenOptions={{ headerTitleAlign: "center", }}>
+              <Stack screenOptions={{ headerTitleAlign: "center" }}>
 
-                {/* <Stack.Screen name="(auth)"
+                <Stack.Screen name="(auth)"
                   // initialParams={{ countryCode: countryCode }}
                   options={{
                     headerShadowVisible: false,
@@ -212,14 +219,40 @@ export default function RootLayout() {
                     headerLeft: () => (
                       router.canGoBack() ? (
                         <Pressable onPress={() => router.back()}>
-                          <Ionicons name="arrow-back" size={24} color="black" style={{ marginLeft: 6 }} />
+                          <Ionicons name="arrow-back" size={24} color="#134071" style={{ marginLeft: 6 }} />
                         </Pressable>
                       ) : null
                     ),
-                  }} /> */}
+                  }} />
 
+                <Stack.Screen name="documents" options={{ headerShown: false }} />
+
+
+                <Stack.Screen name="(verification)"
+                  // initialParams={{ countryCode: countryCode }}
+
+                  options={{
+                    headerShadowVisible: false,
+
+                    // headerStyle:{
+
+                    // },
+                    headerShown: false,
+                    title: "",
+                    headerLeft: () => (
+                      router.canGoBack() ? (
+                        <Pressable onPress={() => router.back()}>
+                          <Ionicons name="arrow-back" size={24} color="#134071" style={{ marginLeft: 6 }} />
+                        </Pressable>
+                      ) : null
+                    ),
+                  }} />
+
+
+                {/* <Stack.Screen name="payment" options={{ headerShown: false }} /> */}
 
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
                 <Stack.Screen name="(account)" options={{ headerShown: true, headerShadowVisible: false, title: "" }} />
 
                 <Stack.Screen name="rideSummary" options={{ headerShown: true, title: "", headerShadowVisible: false }} />
@@ -259,7 +292,7 @@ export default function RootLayout() {
                 />
                 <Stack.Screen name="summary" options={{
                   headerShadowVisible: false,
-                  headerShown: true,
+                  headerShown: false,
                   title: ""
                   ,
                   headerTitleStyle: {

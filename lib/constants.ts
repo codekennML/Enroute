@@ -1,6 +1,6 @@
 export const COLOR_THEME = {
     light: {
-        background: 'hsl(0 0% 100%)', // background
+        background: 'hsl(300, 4.76%, 95.88%)', // background
         foreground: "hsl(211.28, 71.21%, 25.88%",
         border: 'hsl(20 5.9% 90%)', // border
         card: 'hsl(0 0% 100%)', // card
