@@ -80,7 +80,7 @@ const vehicleInsurance = () => {
 
     const handleSubmitInsurance = () => {
         router.push({
-            pathname: "/success"
+            pathname: "/(verification)/awaitingVerification"
         })
     }
 

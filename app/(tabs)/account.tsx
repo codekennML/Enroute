@@ -29,27 +29,28 @@ const AccountScreen: React.FC = () => {
     { id: '5', title: 'Legal', icon: 'shield-checkmark-outline', page: "/(account)/legal" },
     { id: '6', title: 'Privacy Policy', icon: 'lock-closed-outline', page: "/(account)/privacy" },
     { id: '4', title: 'Support', icon: 'headset-outline', page: "/(account)/support" },
-    { id: '7', title: 'Logout', icon: 'log-out-outline', page: "/(account)/logout" },
+
   ];
 
   const renderActionItem = (item: ActionItem) => (
     <Button
+      variant={"ghost"}
       key={item.id}
-      className="flex-row items-center py-3 px-6 bg-white "
+      className="flex-row items-center py-3 px-6 "
       onPress={() => router.push({
         pathname: item.page
       })}
     >
-      <Ionicons name={item.icon as any} size={24} color="#134071" className="mr-4 text-foreground" />
+      {/* <Ionicons name={item.icon as any} size={24} color="#134071" className="mr-4 text-foreground" /> */}
       <Text className={`flex-1 text-base font-medium  ${item.id === '7' ? "text-destructive" : "text-foreground"}`}>{item.title}</Text>
       <Ionicons name="chevron-forward" size={24} color="#134071" />
     </Button>
   );
 
   return (
-    <SafeAreaView className="flex-1 ">
+    <SafeAreaView className="">
       <ScrollView>
-        <View className="bg-white p-6 flex flex-col justify-center mb-4">
+        <View className="p-6 flex flex-col justify-center mb-4">
 
           <View className='flex-col items-center justify-center'>
 
@@ -92,8 +93,22 @@ const AccountScreen: React.FC = () => {
 
         </View>
 
-        <View className="bg-white rounded-t-lg overflow-hidden">
+        <View className=" rounded-t-lg overflow-hidden ">
           {actionItems.map(renderActionItem)}
+          <>
+            <Button
+              variant={"ghost"}
+
+              className="flex-row  py-3 px-6 "
+              onPress={() => router.push({
+                pathname: "/(auth)"
+              })}
+            >
+              {/* <Ionicons name={item.icon as any} size={24} color="#134071" className="mr-4 text-foreground" /> */}
+              <Text className={`flex-1 text-base font-medium text-destructive`}>Logout</Text>
+              {/* <Ionicons name="chevron-forward" size={24} color="#134071" /> */}
+            </Button>
+          </>
         </View>
       </ScrollView>
     </SafeAreaView>

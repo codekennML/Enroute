@@ -21,7 +21,7 @@ const textVariants = cva('text-foreground dark:text-foreground', {
       tiny: "text-[8px] leading-2"
     },
     color: {
-      none: "",
+      light: "text-background",
       primary: 'text-muted-foreground',
       secondary: 'text-foreground',
       tertiary: 'text-foreground/90',
@@ -30,7 +30,7 @@ const textVariants = cva('text-foreground dark:text-foreground', {
   },
   defaultVariants: {
     variant: 'body',
-    color: 'primary',
+    color: 'light',
   },
 });
 
@@ -46,7 +46,7 @@ const Text = React.forwardRef<TextRef, SlottableTextProps & VariantProps<typeof 
     const Component = asChild ? Slot.Text : RNText;
     return (
       <Component
-        className={cn('text-base text-foreground web:select-text', textClass, textVariants({ variant, color }), className)}
+        className={cn('text-base  web:select-text', textClass, textVariants({ variant, color }), className)}
         ref={ref}
         {...props}
       />

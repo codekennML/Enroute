@@ -22,6 +22,7 @@ interface EmergencyContactFormData {
 }
 
 const EmergencyContactStep: React.FC = () => {
+
   const { control, handleSubmit, watch, formState: { errors }, setValue, getValues } = useForm<EmergencyContactFormData>({
     resolver: zodResolver(emergencySchema),
     defaultValues: {
@@ -167,8 +168,7 @@ const EmergencyContactStep: React.FC = () => {
             backgroundColor: 'white', paddingHorizontal: 20, paddingTop: 10
             , borderRadius: 0, width: '100%', height: "100%"
           }}>
-            <AddContact onAddContact={handleAddContact} openModal={setIsAddContactModalVisible} />
-
+            <AddContact onAddContact={handleAddContact} openModal={setIsAddContactModalVisible} title={"Add riders"} />
 
           </View>
         </View>

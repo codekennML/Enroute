@@ -1,76 +1,174 @@
-import React, { Dispatch, SetStateAction, useRef } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { Input } from '../input'
-import PhoneInput from 'react-native-phone-number-input'
+import PhoneInput, { CountryCode } from 'react-native-phone-number-input'
 import { friendSchema } from '@/app/(verification)/schemas'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../button'
 import { Text } from '../text'
 import { X } from '@/lib/icons/icons'
+import { PhoneNumberUtil } from 'google-libphonenumber';
+
 
 export type AddContactFormData = z.infer<typeof friendSchema>
 
 interface AddContactProps {
     onAddContact: (contact: AddContactFormData | null) => void;
-    openModal: Dispatch<SetStateAction<boolean>>
+    openModal?: Dispatch<SetStateAction<boolean>>
+    title: string
+    updateContact: (contact: Friend) => void
+    contactToEdit?: Friend
+
 }
 
-const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
-    const { control, watch, handleSubmit, formState: { errors }, setValue } = useForm<AddContactFormData>({
+
+
+
+
+
+
+
+const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal, title, contactToEdit, updateContact }) => {
+
+
+
+    const [defaultValues, setDefaultValues] = useState({ firstName: "", lastName: "", mobile: "", countryCode: 234 })
+
+
+    const [defaultCode, setDefaultCode] = useState<CountryCode>("NG")
+    const phoneInputRef = useRef<PhoneInput>(null)
+
+
+    const { control, watch, handleSubmit, formState: { errors }, setValue, reset } = useForm<AddContactFormData>({
         resolver: zodResolver(friendSchema),
-        mode: "onChange"
+        mode: "onChange",
+        defaultValues
     })
 
-    const phoneInputRef = useRef<PhoneInput>(null)
+    useLayoutEffect(() => {
+        // console.log(contactToEdit, "Conatta")
+
+        if (contactToEdit) {
+
+
+            const phoneUtil = PhoneNumberUtil.getInstance();
+
+
+            const parsedNo = phoneUtil.parse(`+${contactToEdit?.countryCode}${contactToEdit?.mobile}`, '');
+
+            // console.log(parsedNo, "PARSED NO")
+
+            if (parsedNo.hasNationalNumber()) {
+                const nationalNumber = parsedNo.getNationalNumberOrDefault().toString();
+                console.log(nationalNumber)
+                const code = parsedNo.getCountryCodeOrDefault();
+                console.log(code)
+                const countryCode = phoneUtil.getRegionCodeForCountryCode(code) as CountryCode;
+                console.log(countryCode)
+
+                phoneInputRef.current?.setState({
+                    code: code.toString(),
+                    number: nationalNumber,
+                    countryCode: countryCode,
+                });
+
+
+            }
+
+
+        } else {
+            phoneInputRef.current?.setState({
+                code: "234",
+                // number: nationalNumber,
+                countryCode: "NG",
+            });
+        }
+
+
+    }, [contactToEdit])
+
+    useEffect(() => {
+
+        if (contactToEdit) {
+
+            reset(contactToEdit)
+        }
+
+    }, [contactToEdit])
+
+
+
 
     const onSubmit = (data: AddContactFormData) => {
 
-        console.log(data, "Submitted")
 
         const phoneNumber = phoneInputRef.current?.getNumberAfterPossiblyEliminatingZero()
         const callingCode = phoneInputRef.current?.getCallingCode()
 
         if (phoneNumber && callingCode) {
-            onAddContact({
-                ...data,
-                // id: Date.now().toString(), // Generate a temporary ID
-                mobile: phoneNumber.number,
-                countryCode: parseInt(callingCode)
-            })
+
+            if (contactToEdit) {
+                //Update the contact data instead    
+
+                updateContact({
+                    ...data,
+                    mobile: phoneNumber.number,
+                    countryCode: parseInt(callingCode)
+                })
+
+            } else {
+                onAddContact({
+                    ...data,
+                    // id: Date.now().toString(), // Generate a temporary ID
+                    mobile: phoneNumber.number,
+                    countryCode: parseInt(callingCode)
+                })
+
+            }
+
         } else {
             onAddContact(null)
         }
+
+        if (openModal)
+            openModal(false)
+
+
     }
     const onError = (data) => {
         console.log(data, "error")
     }
     const handleModalClose = () => {
         // onAddContact(null)
-        openModal(false)
+        if (openModal)
+            openModal(false)
+
     }
 
-    // const friends = watch("mobile")
-    // console.log(friends, "friends")
 
     const hasErrors = Object.keys(errors).length > 0;
-    // Watch all the values in the form
+
     const watchedValues = watch();
 
     // Check if all required fields have values
     const allFieldsFilled = Object.values(watchedValues).every(value => value !== undefined && value !== '');
 
+    const canProceed = hasErrors && allFieldsFilled
+
+
+
 
     return (
-        <View className='flex flex-col h-full justify-between '>
+        <View className='flex flex-col h-full justify-between mt-6 '>
             <View className='flex-1  '>
                 <View className='flex-row pb-6 '>
                     <Button variant={"ghost"} onPress={handleModalClose}><X size={30} className='text-foreground' /></Button>
-                    <Text className='flex-1 text-center' variant={"heading"} >New Contact</Text>
+                    <Text className='flex-1 text-center' variant={"mediumTitle"}>{title}</Text>
                 </View>
                 <View className='flex flex-col space-y-3'>
-                    <Text variant="subhead" className='font-semibold pb-3'>First Name</Text>
+                    <Text variant="subhead" className='font-medium pb-3'>First Name</Text>
                     <Controller
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
@@ -79,7 +177,7 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
-                                className={`h-12 px-3 border-2 font-medium ${errors.firstName ? "border-red-600" : 'border-blue-600'}`}
+                                className={`h-12 px-3 border-2 font-medium ${errors.firstName ? "border-red-600" : 'border-gray-200'}`}
                             />
                         )}
                         name="firstName"
@@ -88,7 +186,7 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
                 </View>
 
                 <View className='my-4'>
-                    <Text variant="subhead" className='font-semibold pb-2'>Last Name</Text>
+                    <Text variant="subhead" className='font-medium pb-2'>Last Name</Text>
                     <Controller
                         control={control}
                         render={({ field: { onChange, onBlur, value } }) => (
@@ -97,7 +195,7 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
                                 onBlur={onBlur}
                                 onChangeText={onChange}
                                 value={value}
-                                className={`h-12 border-2 px-3 font-medium ${errors.lastName ? "border-red-600" : 'border-blue-600'}`}
+                                className={`h-12 border-2 px-3 font-medium ${errors.lastName ? "border-red-600" : 'border-gray-200'}`}
                             />
                         )}
                         name="lastName"
@@ -114,9 +212,11 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
                             <PhoneInput
                                 ref={phoneInputRef}
                                 defaultValue={value?.toString()}
-                                placeholder='8123456782'
-                                defaultCode="NG"
+                                value={value?.toString()}
+                                placeholder=' '
+                                // defaultCode={defaultCode}
                                 layout="first"
+
                                 onChangeText={(text: string) => {
                                     onChange(text)
                                 }}
@@ -195,7 +295,8 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
                                 }}
                                 textInputProps={{
                                     inputMode: "numeric",
-                                    placeholderTextColor: '#134071'
+                                    placeholderTextColor: '#134071',
+                                    value: value
                                     //   borderRadius: 8
                                 }}
                                 codeTextStyle={{
@@ -204,8 +305,8 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
                                 }}
 
                                 textContainerStyle={{
-                                    backgroundColor: "#f5f4f5",
-                                    borderColor: errors.mobile?.message || errors.countryCode?.message ? "red" : "#2563eb",
+                                    backgroundColor: "#fff",
+                                    borderColor: errors.mobile?.message || errors.countryCode?.message ? "red" : "lightgray",
                                     borderRadius: 8,
                                     borderWidth: 2,
                                     paddingVertical: 8,
@@ -224,21 +325,17 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal }) => {
                     {errors.mobile && <Text className="text-red-600 text-sm mt-1">{errors?.countryCode?.message}</Text>}
                 </View>
             </View>
-            <View className='pb-6 '>
+            <View className='pb-12 '>
                 <Button onPress={() => {
-                    //Is submitting 
-                    console.log(hasErrors, "Hagsg")
-                    console.log(allFieldsFilled, "teyeyege")
+
                     const submitHandler = handleSubmit(onSubmit, onError)
 
-                    //Calling submit handler
+
                     submitHandler()
-                    console.log(hasErrors, "7ubdjfjf")
-                    console.log(allFieldsFilled, "ndid84")
-                    // handleSubmit(onSubmit)
-                }} variant={hasErrors || !allFieldsFilled ? "ghost" : "default"} size={"lg"} disabled={hasErrors || !allFieldsFilled} rounded={"base"} className='flex-row items-center justify-center'>
-                    <Text variant={"smallTitle"} className='font-bold'>
-                        Add Contact
+
+                }} variant={hasErrors || !allFieldsFilled ? "ghost" : "default"} size={"lg"} disabled={canProceed} rounded={"base"} className='flex-row items-center justify-center'>
+                    <Text variant={"smallTitle"} className='font-semibold'>
+                        {contactToEdit ? "Save" : "Add contact"}
                     </Text>
                 </Button>
             </View>

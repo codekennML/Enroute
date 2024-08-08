@@ -2,8 +2,7 @@ import { LucideIcon } from 'lucide-react-native'
 
 
 interface Location {
-  lat: number,
-  lng: number,
+  coordinates: [number, number]
   placeId: string
   name: string
   town?: string,
@@ -24,11 +23,12 @@ interface SearchProps {
 
 
 export interface RiderData {
-  name: string,
+  firstName: string,
+  lastName: string
   countryCode: number,
-  mobile: number,
-  active: boolean
-
+  mobile: string,
+  id?: string,
+  added?: boolean
 }
 
 export interface UserPackageInfo {
@@ -37,40 +37,45 @@ export interface UserPackageInfo {
   origin?: Location,
   destination?: Location,
   comments: string
-  now: boolean,
-  when?: Date
+  description: string
+  when?: string //stringified Date
   express?: boolean
   budget: number
   type: string
 }
 
 export interface UserRideInfo {
+  recipient: never[]
   rideId?: string
   budget: number,
+  busStopName: string
   riders: RiderData[],
-  seats: number
   origin?: Location,
   destination?: Location,
-  now: boolean,
-  when?: Date
-  luggage: boolean,
-  charter: boolean
+  when?: string  //Stringified Date so we can use it in redux 
+  luggage: string,
+  charter?: boolean
   type: string
-
 
 }
 
 export interface UserInfo {
-  country?: Omit<Location, "placeId" | "town" | "state" | "country"> & { short_name?: string },
+  country?: Omit<Location, "placeId" | "town" | "state" | "country"> & { short_name?: string, currency: string },
   state?: Omit<Location, "placeId" | "town" | "state" | "country">
-  name: string
+  firstName: string
+  roles: number
+  subRole?: number
+  lastName: string
   avatar: string
   _id: string,
   email: string
-  mobile: number,
-  type: string
+  mobile: string,
+  // type: string 
   countryCode: number,
+  deviceToken: string
 }
+
+export type UserUpdateData = Partial<Omit<UserInfo, "country" | "state" | "roles" | "subRole" | "ratings">>
 
 export type RideInfo = UserRideInfo | IserPackageInfo
 

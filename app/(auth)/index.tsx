@@ -31,7 +31,7 @@ const WelcomeScreen = () => {
 
         <Button onPress={() => {
           router.push({
-            pathname: "(verification)/photo",
+            pathname: "/rideLive",
 
             // pathname: "/rideHelp",
             params: {

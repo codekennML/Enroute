@@ -6,6 +6,10 @@ import toastReducer from "@/redux/slices/toast"
 import offerReducer from "@/redux/slices/offers"
 import notificationReducer from "@/redux/slices/wsNotifications"
 import websocketReducer from "@/redux/slices/websocket"
+import messagesReducer from "@/redux/slices/messages"
+// import chatsReducer from "@/redux/slices/chats"
+import activeChatReducer from "@/redux/slices/chats"
+import pushNotificationReducer from "@/redux/slices/notifications/app"
 import { api } from "@/redux/api/apiSlice"
 import webSocketMiddleware from './utils/wsMIddleware'
 
@@ -16,7 +20,11 @@ export const store = configureStore({
         toast: toastReducer,
         offers: offerReducer,
         websocket: websocketReducer,
-        notification: notificationReducer,
+        rideNotification: notificationReducer,
+        pushNotifications: pushNotificationReducer,
+        messages: messagesReducer,
+        // chats: chatsReducer,
+        activeChat: activeChatReducer,
         [api.reducerPath]: api.reducer,
     },
     middleware: (getDefaultMiddleware) =>

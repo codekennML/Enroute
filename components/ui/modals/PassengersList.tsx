@@ -5,6 +5,8 @@ import { Text } from '@/components/ui/text';
 import { Star } from '@/lib/icons/icons';
 import { FlashList } from "@shopify/flash-list";
 import { Avatar, AvatarImage, AvatarFallback } from '../avatar';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '@/redux/slices/user';
 
 interface Passenger {
     id: string;
@@ -22,6 +24,12 @@ interface PassengerListProps {
 }
 
 const PassengerItem: React.FC<{ passenger: Passenger }> = ({ passenger }) => {
+
+    const userInfo = useSelector(selectUserInfo)
+
+    const { role } = userInfo
+
+
     return (
         <View className="flex-row bg-white rounded-lg p-4 m-2 mb-3 border border-slate-200 ">
 
@@ -86,7 +94,7 @@ const PassengerList: React.FC<PassengerListProps> = ({ passengers }) => {
             renderItem={({ item }) => <PassengerItem passenger={item} />}
             keyExtractor={(item) => item.id}
             contentContainerClassName="p-4"
-            estimatedItemSize={10}
+            estimatedItemSize={20}
         />
     );
 };

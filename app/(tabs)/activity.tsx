@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text'
 import { CalendarClock, Clock, MapPin } from '@/lib/icons/icons';
 import { router } from 'expo-router';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Ride {
     id: string;
@@ -17,8 +18,52 @@ interface Ride {
 
 type TabType = 'upcoming' | 'completed';
 
+
+const renderCardSkeletons = (count: number) => {
+    return Array(count).fill(6).map((_, index) => (
+        <CardLoader key={`skeleton-${index}`} />
+    ))
+}
+
+
+const CardLoader = () => {
+
+    return (
+        <View className='p-4 shadow-md'>
+            <View>
+                <Skeleton className=" h-12 rounded" />
+            </View>
+            <View className='my-3'>
+                <Skeleton className="h-5 my-2 rounded" />
+                <Skeleton className="h-5 rounded" />
+            </View>
+            <View className='flex flex-row justify-between items-center '>
+                <View className='w-1/2'>
+                    <Skeleton className="w-full h-5 rounded-md" />
+                    <Skeleton className="w-4/5 h-5  mt-3" />
+                </View>
+                <View>
+                    <Skeleton className="w-12 h-10 " />
+                </View>
+            </View>
+        </View>
+    )
+}
+
 const RidesList: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TabType>('upcoming');
+    const [isLoading, setIsLoading] = useState(true)
+
+
+    useEffect(() => {
+
+        setTimeout(() => {
+
+            //   setSchedules(dummySchedules)
+            setIsLoading(false);
+        }, 3000)
+
+    }, [])
 
     const upcomingRides: Ride[] = [
         { id: '1', from: 'Home', to: 'Office', date: '2024-07-24 09:00 AM' },
@@ -34,16 +79,16 @@ const RidesList: React.FC = () => {
     ];
 
     const completedRides: Ride[] = [
-        { id: '11', from: 'Airport', to: 'Hotel', date: '2024-07-20 02:00 PM' },
-        { id: '12', from: 'Restaurant', to: 'Home', date: '2024-07-22 09:30 PM' },
-        { id: '13', from: 'Home', to: 'Gym', date: '2024-07-23 07:00 AM' },
-        { id: '14', from: 'Gym', to: 'Office', date: '2024-07-23 09:00 AM' },
-        { id: '15', from: 'Office', to: 'Supermarket', date: '2024-07-23 06:30 PM' },
-        { id: '16', from: 'Supermarket', to: 'Home', date: '2024-07-23 07:30 PM' },
-        { id: '17', from: 'Home', to: 'Dentist', date: '2024-07-24 02:00 PM' },
-        { id: '18', from: 'Dentist', to: 'Pharmacy', date: '2024-07-24 03:30 PM' },
-        { id: '19', from: 'Pharmacy', to: 'Home', date: '2024-07-24 04:00 PM' },
-        { id: '20', from: 'Home', to: 'Movie Theater', date: '2024-07-24 07:00 PM' },
+        // { id: '11', from: 'Airport', to: 'Hotel', date: '2024-07-20 02:00 PM' },
+        // { id: '12', from: 'Restaurant', to: 'Home', date: '2024-07-22 09:30 PM' },
+        // { id: '13', from: 'Home', to: 'Gym', date: '2024-07-23 07:00 AM' },
+        // { id: '14', from: 'Gym', to: 'Office', date: '2024-07-23 09:00 AM' },
+        // { id: '15', from: 'Office', to: 'Supermarket', date: '2024-07-23 06:30 PM' },
+        // { id: '16', from: 'Supermarket', to: 'Home', date: '2024-07-23 07:30 PM' },
+        // { id: '17', from: 'Home', to: 'Dentist', date: '2024-07-24 02:00 PM' },
+        // { id: '18', from: 'Dentist', to: 'Pharmacy', date: '2024-07-24 03:30 PM' },
+        // { id: '19', from: 'Pharmacy', to: 'Home', date: '2024-07-24 04:00 PM' },
+        // { id: '20', from: 'Home', to: 'Movie Theater', date: '2024-07-24 07:00 PM' },
     ];
 
     const renderRideItem: ListRenderItem<Ride> = useCallback(({ item }) => (
@@ -118,7 +163,7 @@ const RidesList: React.FC = () => {
     ), []);
 
     return (
-        <SafeAreaView className="flex-1 bg-gray-100">
+        <SafeAreaView className="flex-1 ">
             <View className='px-4 pt-4'>
                 <Text className='text-[30px] font-semibold font-header text-foreground'>Activity</Text>
             </View>
@@ -143,15 +188,19 @@ const RidesList: React.FC = () => {
                 </Button>
             </View>
             <View className='h-full '>
-
-                <FlashList<Ride>
-                    data={activeTab === 'upcoming' ? upcomingRides : completedRides}
-                    renderItem={renderRideItem}
-                    estimatedItemSize={100}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={{ padding: 16 }}
-                    ListEmptyComponent={renderEmptyList}
-                />
+                {
+                    isLoading ? (
+                        renderCardSkeletons(6)
+                    ) : (
+                        <FlashList<Ride>
+                            data={activeTab === 'upcoming' ? upcomingRides : completedRides}
+                            renderItem={renderRideItem}
+                            estimatedItemSize={100}
+                            keyExtractor={(item) => item.id}
+                            contentContainerStyle={{ padding: 16 }}
+                            ListEmptyComponent={renderEmptyList}
+                        />)
+                }
             </View>
         </SafeAreaView>
     );

@@ -16,7 +16,7 @@ export interface ControllerProps {
 
 const DynamicFieldComponent: React.FC<ControllerProps> = ({ field, control, errors }: any) => {
 
-    const { name, displayName, options } = field;
+    const { name, displayName, options, placeholder } = field;
 
     switch (options.type) {
         case 'text':
@@ -35,7 +35,7 @@ const DynamicFieldComponent: React.FC<ControllerProps> = ({ field, control, erro
                                 aria-labelledby={`${field.name}`}
                                 aria-errormessage={`${field.name} validation error`}
                                 style={{ fontSize: 14 }}
-                                placeholder={options.type === "number" ? "e.g. 124564456" : ""}
+                                placeholder={placeholder ? placeholder : ""}
 
                             />
                             {errors[name] && <Text>{errors[name].message}</Text>}

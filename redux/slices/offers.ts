@@ -1,5 +1,5 @@
 import { OfferCardProps } from "@/components/custom/driverPriceCard";
-import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import { createEntityAdapter, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { store } from "../store";
 
@@ -27,6 +27,13 @@ const offersSlice = createSlice({
     initialState,
     reducers: {
         addOffers: offersAdapter.addMany,
+        addOffer: (state, action: PayloadAction<OfferCardProps>) => {
+            const newOffer = action.payload;
+            if (!state.entities[newOffer.id]) {
+                state.ids.unshift(newOffer.id);
+                state.entities[newOffer.id] = newOffer;
+            }
+        },
         removeAllOffers: offersAdapter.removeAll,
         updateOffer: offersAdapter.updateOne,
         removeOffer: offersAdapter.removeOne,
@@ -34,7 +41,7 @@ const offersSlice = createSlice({
 });
 
 // Export the actions
-export const { addOffers, updateOffer, removeOffer, removeAllOffers } = offersSlice.actions;
+export const { addOffers, addOffer, updateOffer, removeOffer, removeAllOffers } = offersSlice.actions;
 
 // Create selectors
 const offerSelectors = offersAdapter.getSelectors<RootState>(

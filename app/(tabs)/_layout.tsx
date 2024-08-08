@@ -32,6 +32,17 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="driverIndex"
+        options={{
+          title: 'Drive',
+          tabBarIcon: ({ color, focused }) => (
+            <Home color={color} size={28} className={`${focused ? "text-foreground" : "text-primary"}`} />
+            // <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+          ),
+        }}
+      />
+
 
       <Tabs.Screen
         name="schedule"

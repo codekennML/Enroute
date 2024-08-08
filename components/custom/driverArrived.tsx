@@ -2,7 +2,7 @@ import { View, Image } from 'react-native'
 import React from 'react'
 import { Text } from "@/components/ui/text"
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
-import { Star, SendHorizonal, PhoneOutgoing, ShieldCheck, MessageCircle } from '@/lib/icons/icons'
+import { Star, SendHorizonal, PhoneOutgoing, ShieldCheck, MessageCircle, MessageCircleMore } from '@/lib/icons/icons'
 import { Button } from '@/components/ui/button'
 import { Dispatch, SetStateAction } from 'react'
 import { router } from 'expo-router'
@@ -30,12 +30,16 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
 
                     <Text variant={"body"} className=''>{` 4 passengers onboard `}</Text>
                 </View>
+
+
+
                 <View>
-                    <Text variant={"subhead"} className='font-bold leading-2 tracking-wide'>{` ${licensePlate} `}</Text>
+                    <Text variant={"smallTitle"} className='font-bold leading-2 tracking-wide'>{` ${licensePlate} `}</Text>
                     <Text variant={"body"} >{` ${carName} `}</Text>
 
 
                 </View>
+
 
             </View>
 
@@ -64,78 +68,43 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
 
                 </View>
 
-                <View className='flex flex-row  items-end gap-x-4 pr-3.5'>
-                    <Button variant="ghost" rounded="full" className="bg-primary p-2  flex-row items-center justify-center gap-x-2" onPress={() => { router.push("/map") }}>
-                        <PhoneOutgoing size={20} className="text-white p-2" />
-                        {/* <Text variant={"footnote"} className='font-medium'>Call</Text> */}
+
+                <View className='flex flex-row  items-end gap-x-4'>
+                    <Button variant="ghost" rounded="full" className="px-3  py-2 flex-row items-center justify-center gap-x-2 bg-accent" onPress={() => { router.push("/map") }}>
+                        <PhoneOutgoing size={20} className="text-primary p-2" />
+                        <Text variant={"footnote"} className='font-semibold'>Call</Text>
                     </Button>
 
 
 
-                    <Button variant="ghost" rounded="full" className="bg-primary p-2  flex-row items-center justify-center gap-x-2 ">
-                        <MessageCircle size={20} className="text-white p-2" />
-                        {/* <Text variant={"footnote"} className='font-medium'>Chat</Text> */}
+                    <Button variant="ghost" rounded="full" className="px-3 py-2  flex-row items-center justify-center gap-x-1 bg-accent ">
+                        <MessageCircleMore size={20} className="p-2 text-primary" />
+                        <Text variant={"footnote"} className='font-semibold'>Chat</Text>
                     </Button>
 
-                    <Button variant="ghost" rounded="full" className="bg-primary p-2  flex-row items-center justify-center gap-x-2 ">
+                    {/* <Button variant="ghost" rounded="full" className="bg-primary p-2  flex-row items-center justify-center gap-x-2 ">
                         <ShieldCheck size={20} className="text-white p-2" />
-                        {/* <Text variant={"footnote"} className='font-medium'>Chat</Text> */}
-                    </Button>
+                    </Button> */}
+                    {/* <Text variant={"footnote"} className='font-medium'>Chat</Text> */}
 
                 </View>
             </View>
-            {/* Trip route */}
-            {/* Trip route */}
+
             <View className=' '>
 
-                <View className='flex  gap-x-2  border border-slate-200 rounded-md pb-2 px-2 pt-1 '>
-                    <View className='flex flex-row gap-x-2 mt-1 items-center'>
 
-                        <View className='bg-primary/80 h-3 w-3 rounded-full '></View>
-                        {/* </View> */}
 
-                        <Text variant={"body"} className='font-semibold pl-1'>Pick-up location</Text>
-                    </View>
+                {/* Cancel && passengers */}
+                <View className='flex flex-row items-center gap-2' >
+                    <Button variant="ghost" rounded="base" className="bg-muted mt-5 flex-1" onPress={() => openPassengersSheet(true)}>
+                        <Text className='text-center py-3 font-medium' variant="body">View Passengers </Text>
+                    </Button>
+                    <Button variant="destructive" rounded="base" className=" mt-5 flex-1" onPress={() => openCancelRideSheet(true)}>
+                        <Text variant={"body"} color={"light"} className=' text-white text-center py-3 font-medium'>Cancel ride</Text>
+                    </Button>
+                </View >
 
-                    <View className='flex flex-col '>
-
-                        <Text variant="callout" className='text-foreground font-medium  mt-2'>
-                            1234 Bedford Avenue, Brooklyn, NY,11216
-                        </Text>
-                    </View>
-
-                </View>
-
-                <View className='flex  gap-x-2 mt-1  border border-slate-200 rounded-md pb-2 px-2 pt-1 '>
-                    <View className='flex flex-row gap-x-2 mt-1 items-center'>
-
-                        <View className='bg-red-600/80 h-3 w-3 rounded-full '></View>
-                        {/* </View> */}
-
-                        <Text variant={"body"} className='font-semibold pl-2'>Destination</Text>
-                    </View>
-
-                    <View className='flex flex-col '>
-
-                        <Text variant="callout" className='text-foreground font-medium  mt-2'>
-                            1234 Myrle Drive, Brooklyn, NY,11216
-                        </Text>
-                    </View>
-
-                </View>
-
-            </View>
-
-            {/* Cancel && passengers */}
-            <View className='flex flex-row items-center gap-2'>
-                <Button variant="ghost" rounded="base" className="bg-muted mt-5 flex-1" onPress={() => openPassengersSheet(true)}>
-                    <Text className='text-center py-3' variant="body">View Passengers </Text>
-                </Button>
-                <Button variant="destructive" rounded="base" className=" mt-5 flex-1" onPress={() => openCancelRideSheet(true)}>
-                    <Text variant={"body"} color={"none"} className=' text-white text-center py-3 font-semibold'>Cancel ride</Text>
-                </Button>
-            </View>
-
+            </View >
         </View>
     )
 }

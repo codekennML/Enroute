@@ -103,7 +103,7 @@ const AvatarStep = () => {
                             disabled={!!image}
                             variant={"ghost"}
                             onPress={handleCapturePhoto}
-                            className=" bg-primary/90 rounded-full pb-10 h-20 w-20  border-8 border-gray-300 mb-4"
+                            className=" bg-red-500 rounded-full pb-10 h-20 w-20  border-8 border-gray-300 mb-4"
                         >
                         </Button>
 

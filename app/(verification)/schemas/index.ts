@@ -16,7 +16,7 @@ export const personalInfoSchema = z.object({
 
 
 export const friendSchema = z.object({
-
+  id: z.string().optional(),
   firstName: z.string({
     required_error: "First name is required",
     invalid_type_error: "First Name must be a text value"
@@ -48,22 +48,69 @@ export const friendSchema = z.object({
   // .regex(/^\+\d{1,4}$/, 'Invalid country code format')
 });
 
+export const friendsWithAddedTag = friendSchema.extend({
+  added: z.boolean().optional(),
+  id: z.string()
+})
+
 export const emergencySchema = z.object({
   friends: z.array(friendSchema).max(2, "A maximum of two emergency contacts can be added.")
 });
 
-// export const emergencySchema = z.object({
-//   firstEmergencyContact: 
-//   secondEmergencyContact: z.object({
-//     firstName: z.string().min(2, "Contact first name is required"),
-//     lastName: z.string().min(2, "Contact last name is required"),
-//     phone: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
-//   }).optional(),
-// })
 
 export const avatarSchema = z.object({
   avatar: z.string().url("Invalid URL for avatar"),
 })
+
+const coordinatesSchema = z.object({
+  placeId: z.string(),
+  coordinates: z.tuple([z.number(), z.number()]),
+  name: z.string(),
+  state: z.string(),
+  town: z.string(),
+  country: z.string()
+})
+
+export const tripInfoSchema = z.object({
+  destination: coordinatesSchema,
+  origin: coordinatesSchema,
+  busStopName: z.string().optional(),
+  riders: z.array(friendsWithAddedTag),
+  luggage: z.string(),
+  budget: z.number().min(300, "Budget must be greater than 300"),
+  charter: z.boolean().optional(),
+  when: z.union([
+    z.string().refine(
+      (val) => !isNaN(new Date(val).getTime()),
+      { message: "Date must be a valid date" }
+    ),
+    z.literal('now')
+  ])
+})
+
+export const packageInfoSchema = z.object({
+  destination: coordinatesSchema,
+  origin: coordinatesSchema,
+  recipient: friendSchema,
+  comments: z.string(),
+  description: z.string(),
+  express: z.boolean().optional(),
+  when: z.union([
+    z.string().refine(
+      (val) => !isNaN(new Date(val).getTime()),
+      { message: "Must be a valid date string" }
+    ),
+    z.literal('now')
+  ]),
+  budget: z.number().min(300, "Budget must be greater than 300"),
+
+})
+
+export const messageSchema = z.object({
+  message: z.string().min(1, "Message cannot be empty")
+});
+
+// export const riderSchema = friendSchema
 
 const schemas = [personalInfoSchema, emergencySchema, avatarSchema]
 export default schemas

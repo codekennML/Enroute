@@ -19,29 +19,20 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { PortalHost } from '@rn-primitives/portal';
-import { ChevronDown, Users, } from '@/lib/icons/icons'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, Pressable } from 'react-native';
 import 'react-native-reanimated';
-import { Button } from '@/components/ui/button';
-import { Text } from "@/components/ui/text"
-import { ArrowLeft } from "@/lib/icons/icons"
 import { store } from "@/redux/store"
 import { Provider } from 'react-redux'
-import Geolocation from '@react-native-community/geolocation';
-import useLocation from '@/lib/useLocation';
-import { useAppDispatch } from '@/redux/hooks';
 import Toast from "@/components/ui/toast"
-import { useGetGeocodedLocationQuery } from '@/redux/api/maps';
 import axios from 'axios';
 import NetInfo from "@react-native-community/netinfo";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {
-  useCameraDevice,
-  useCameraFormat,
   useCameraPermission
 } from 'react-native-vision-camera'
-
+import messaging from '@react-native-firebase/messaging';
+import { Slot } from "expo-router"
 
 
 // Geolocation.setRNConfiguration(config)
@@ -60,6 +51,37 @@ export { ErrorBoundary } from 'expo-router';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+
+
+
+
+
+
+  //Request Push Notification persmission 
+
+  async function requestUserPermission() {
+
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
+
+  //Check for ongoing trip  asn redirect to rideLive
+
+  //update firebase user token , if it is different from the current one 
+
+
+
+  //Set the user location in state , 
+
+
+
 
   const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
@@ -167,9 +189,6 @@ export default function RootLayout() {
       // console.log("Emama")
       setCountryData();
 
-
-
-
     };
 
     loadTheme().finally(() => {
@@ -202,121 +221,14 @@ export default function RootLayout() {
 
 
   return (
+
+
     <Provider store={store}>
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ThemeProvider value={colorScheme === 'light' ? LIGHT_THEME : DARK_THEME}>
             <BottomSheetModalProvider>
-
-              <Stack screenOptions={{ headerTitleAlign: "center" }}>
-
-                <Stack.Screen name="(auth)"
-                  // initialParams={{ countryCode: countryCode }}
-                  options={{
-                    headerShadowVisible: false,
-                    headerShown: true,
-                    title: "",
-                    headerLeft: () => (
-                      router.canGoBack() ? (
-                        <Pressable onPress={() => router.back()}>
-                          <Ionicons name="arrow-back" size={24} color="#134071" style={{ marginLeft: 6 }} />
-                        </Pressable>
-                      ) : null
-                    ),
-                  }} />
-
-                <Stack.Screen name="documents" options={{ headerShown: false }} />
-
-
-                <Stack.Screen name="(verification)"
-                  // initialParams={{ countryCode: countryCode }}
-
-                  options={{
-                    headerShadowVisible: false,
-
-                    // headerStyle:{
-
-                    // },
-                    headerShown: false,
-                    title: "",
-                    headerLeft: () => (
-                      router.canGoBack() ? (
-                        <Pressable onPress={() => router.back()}>
-                          <Ionicons name="arrow-back" size={24} color="#134071" style={{ marginLeft: 6 }} />
-                        </Pressable>
-                      ) : null
-                    ),
-                  }} />
-
-
-                {/* <Stack.Screen name="payment" options={{ headerShown: false }} /> */}
-
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
-                <Stack.Screen name="(account)" options={{ headerShown: true, headerShadowVisible: false, title: "" }} />
-
-                <Stack.Screen name="rideSummary" options={{ headerShown: true, title: "", headerShadowVisible: false }} />
-
-                <Stack.Screen name="search" options={({ route }) => ({
-                  headerShown: true,
-                  headerShadowVisible: false,
-                  title: route.params.type !== "courier" ? "Plan trip" : "Send Package",
-                  headerTitleStyle: {
-                    fontWeight: "700",
-                    fontSize: 17,
-                    color: "#333333",
-
-                  },
-                  // headerLargeTitle: true, // Use 
-
-                  headerRight: () => (
-
-                    <Button
-                      variant="default"
-                      rounded="full"
-                      className='flex flex-row items-center justify-between p-2 '
-                      onPress={() => alert('Book button pressed')}
-
-                    >
-                      <Users
-                        size={14}
-                        className='text-white' />
-
-                      <ChevronDown
-                        size={14} className='text-white' />
-
-                    </Button>
-
-                  ),
-                })}
-                />
-                <Stack.Screen name="summary" options={{
-                  headerShadowVisible: false,
-                  headerShown: false,
-                  title: ""
-                  ,
-                  headerTitleStyle: {
-                    fontWeight: "700",
-                    fontSize: 17,
-                    color: "#6F6F6F",
-                  },
-                }} />
-
-                <Stack.Screen name="driversList" options={{
-                  headerShadowVisible: false,
-                  headerShown: false,
-                  title: ""
-
-                }} />
-                <Stack.Screen name="rideHelp" options={{
-                  headerShadowVisible: false,
-                  headerShown: true,
-                  title: ""
-
-                }} />
-
-                <Stack.Screen name="+not-found" />
-              </Stack>
+              <Slot />
             </BottomSheetModalProvider>
             <Toast />
           </ThemeProvider>

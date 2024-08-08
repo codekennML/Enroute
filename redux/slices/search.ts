@@ -1,18 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { RiderData, TripInfo, Location } from '@/types/types'
+import { RiderData, UserRideInfo, Location, UserPackageInfo } from '@/types/types'
 import { RootState } from '../store'
 
+type InitialStateType = UserRideInfo | UserPackageInfo
 
-const initialState: TripInfo = {
-    budget: 200,
+const initialState: InitialStateType = {
+    //Lets initially populate with only ride information , when a user selects a different trip type we can change the type and state values
+    destination: undefined,
+    origin: undefined,
+    busStopName: "",
+    budget: 300,
     riders: [],
-    seats: 1,
-    luggage: false,
+    luggage: "",
     charter: false,
-    now: true,
-    // express: false,
-    type: "intra"
+    type: "ride"
 }
 
 export const searchSlice = createSlice({
@@ -22,42 +24,55 @@ export const searchSlice = createSlice({
 
         setOrigin: (state, action: PayloadAction<Location>) => {
             state.origin = action.payload
+            // console.log(action.payload)
+
         },
-        setDestination: (state, action: PayloadAction<Location>) => {
+        setDestination: (state, action: PayloadAction<Location | undefined>) => {
             state.destination = action.payload
+            // console.log(action.payload, "destination")
         },
 
-        addRideRiders: (state, action: PayloadAction<RiderData>) => {
+        addRideRiders: (state, action: PayloadAction<RiderData[]>) => {
             if ("riders" in state) {
-                state.riders.push(action.payload)
 
+                state.riders = action.payload
             }
         },
 
         addPackageRecipient: (state, action: PayloadAction<RiderData>) => {
             if ("recipient" in state) {
                 state.recipient = action.payload
+                // console.log(action, state, "INFO")
             }
         },
 
-        updateRiderStatus: (state, action: PayloadAction<RiderData & { index: number, active: boolean }>) => {
 
-            if ("riders" in state) {
-                const index = action.payload.index
-                state.riders[index].active = action.payload.active
-            }
-        },
 
         setTripType: (state, action) => {
-
-            if ("recipient" in state) {
-                state.type = "courier"
+            if (action.payload === "courier") {
+                // Reset to initial values for courier
+                return {
+                    origin: undefined,
+                    destination: undefined,
+                    type: "courier",
+                    budget: 500,
+                    recipient: undefined,
+                    charter: false,
+                    comments: "",
+                    description: "",
+                }
+            } else if (action.payload === "reset") {
+                // Reset to initial state
+                return initialState
+            } else {
+                // Set the trip type without changing other state properties
+                return {
+                    ...state,
+                    type: action.payload as "ride" | "travel" | "courier"
+                };
             }
-            else {
-                state.type = action.payload
-            }
-
         },
+
 
         removeRider: (state, action: PayloadAction<{ index: number }>) => {
 
@@ -69,14 +84,14 @@ export const searchSlice = createSlice({
             }
         },
 
-        updateOtherTripData: (state, action: PayloadAction<Omit<TripInfo, "riders" | "destination" | "origin">>) => {
+        updateOtherTripData: (state, action: PayloadAction<Partial<Omit<UserRideInfo, "riders" | "destination" | "origin">>>) => {
 
-            console.log(action.payload)
-            state = {
+            return {
                 ...state,
                 ...action.payload,
-
             }
+
+
         }
     }
 })
@@ -84,6 +99,6 @@ export const searchSlice = createSlice({
 export const selectSearchInfo = (state: RootState) => state.search
 
 // Action creators are generated for each case reducer function
-export const { setOrigin, setDestination, addRideRiders, addPackageRecipient, updateRiderStatus, removeRider, updateOtherTripData, setTripType } = searchSlice.actions
+export const { setOrigin, setDestination, addRideRiders, addPackageRecipient, removeRider, updateOtherTripData, setTripType } = searchSlice.actions
 
 export default searchSlice.reducer
