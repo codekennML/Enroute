@@ -8,6 +8,6 @@ const BACKEND_URL = process.env.BACKEND_URL
 export const api = createApi({
     reducerPath: "api",
     baseQuery: axiosBaseQuery({ baseUrl: BACKEND_URL }),
-    tagTypes: ["search", "user", "trips", "ride", "document", "rideRequest", "package", "settlement",],
+    tagTypes: ["search", "user", "trip", "ride", "document", "rideRequest", "settlement", "auth", "busstation", "country", "state", "town", "knowledgeBase", "knowledgeBaseCategory", "chat", "otp", "packageSchedule", "packageScheduleRequest", "ratings", "sos", "ticket", "tripSchedule", "vehicle"],
     endpoints: () => ({}),
 });

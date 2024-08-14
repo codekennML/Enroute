@@ -11,7 +11,7 @@ import {
   Inter_800ExtraBold,
   Inter_900Black
 } from "@expo-google-fonts/inter"
-import { router, Stack } from 'expo-router';
+
 import * as SplashScreen from 'expo-splash-screen';
 import { COLOR_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/useColorScheme';
@@ -31,8 +31,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import {
   useCameraPermission
 } from 'react-native-vision-camera'
-import messaging from '@react-native-firebase/messaging';
-import { Slot } from "expo-router"
+
+import { router, Slot, Stack } from "expo-router"
+import Navigation from './index';
 
 
 // Geolocation.setRNConfiguration(config)
@@ -51,26 +52,6 @@ export { ErrorBoundary } from 'expo-router';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-
-
-
-
-
-
-  //Request Push Notification persmission 
-
-  async function requestUserPermission() {
-
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-      console.log('Authorization status:', authStatus);
-    }
-  }
-
 
   //Check for ongoing trip  asn redirect to rideLive
 
@@ -228,7 +209,40 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ThemeProvider value={colorScheme === 'light' ? LIGHT_THEME : DARK_THEME}>
             <BottomSheetModalProvider>
-              <Slot />
+
+
+              <Stack screenOptions={{ headerShown: false }} />
+              {/* <Stack.Screen name="(auth)"
+
+                  // initialParams={{ countryCode: countryCode }}
+                  options={{
+                    headerShadowVisible: false,
+                    headerShown: true,
+                    title: "",
+                    headerLeft: () => (
+                      router.canGoBack() ? (
+                        <Pressable onPress={() => router.back()}>
+                          <Ionicons name="arrow-back" size={24} color="#134071" style={{ marginLeft: 6 }} />
+                        </Pressable>
+                      ) : null
+                    ),
+                  }}
+                /> */}
+              {/* <Slot /> */}
+
+              {/* </Stack> */}
+
+              {/* <Navigation /> */}
+              {/* <Slot /> */}
+
+
+              {/* <Navigation /> */}
+
+
+              {/* </Stack> */}
+
+
+
             </BottomSheetModalProvider>
             <Toast />
           </ThemeProvider>

@@ -42,6 +42,12 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ summary, handleSheetToOpen })
                     setSubtitle(`${location} / ${destination}`)
                     break
 
+                case "pickupLocation": {
+                    const title = tripInfo?.scheduledPickupLocation ? tripInfo?.scheduledPickupLocation : summary.title
+
+                    setSubtitle(title)
+                }
+
                 case "busStopName":
                     setSubtitle(tripInfo?.busStopName ? tripInfo.busStopName : summary.subtitle)
 

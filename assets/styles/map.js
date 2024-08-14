@@ -145,3 +145,14 @@ export const mapStyle = [{
     ]
 }
 ]
+
+
+// const heightVal = useSharedValue(0);
+
+//   const handleHeight = (val: boolean) => {
+//     setShowButton(val);
+//   };
+
+//   useDerivedValue(() => {
+//     runOnJS(handleHeight)(heightVal.value < height * 0.8);
+//   }, [heightVal])

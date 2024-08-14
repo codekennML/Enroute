@@ -11,7 +11,7 @@ const initialState: UserInfo = {
     lastName: "Vernon",
     mobile: '8105481998',
     countryCode: 234,
-    role: 2345,
+    roles: 2345,
     email: "anita.v@example.com",
     avatar: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.O04oqzX_nVxg5iKkjtVmfQHaLH%26pid%3DApi%26h%3D160&f=1&ipt=91f314318b43a55b9dbad3f606845334088f6729eaa78f765db5a1f71f037e6a&ipo=images",
     state: {
@@ -28,7 +28,7 @@ const initialState: UserInfo = {
         short_name: "ng",
         currency: "NGN"
     },
-    pushToken: ""
+    deviceToken: ""
 }
 
 export const userSlice = createSlice({

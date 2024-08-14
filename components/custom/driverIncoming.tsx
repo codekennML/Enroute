@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { MessageCircleMore, PhoneOutgoing } from '@/lib/icons/icons'
 import { Button } from '@/components/ui/button'
 import { Dispatch, SetStateAction } from 'react'
-import { router } from 'expo-router'
+
 
 interface DriverIncomingProps {
   timeToArrival: number
@@ -13,6 +13,7 @@ interface DriverIncomingProps {
   licensePlate: string
   openPassengersSheet: (isOpen: boolean) => void
   openCancelRideSheet: (isOpen: boolean) => void
+  openChatModal: Dispatch<SetStateAction<boolean>>
 }
 
 const DriverIncoming: React.FC<DriverIncomingProps> = ({
@@ -20,7 +21,8 @@ const DriverIncoming: React.FC<DriverIncomingProps> = ({
   carName,
   licensePlate,
   openCancelRideSheet,
-  openPassengersSheet
+  openPassengersSheet,
+  openChatModal
 }) => {
 
 
@@ -45,12 +47,16 @@ const DriverIncoming: React.FC<DriverIncomingProps> = ({
     <View className='pb-0' >
       <View className='flex flex-row justify-between items-center'>
         <View className='flex flex-1 '>
-          <Text variant={"subhead"} className='font-bold'>{`Arriving in ${timeToArrival} mins`}</Text>
+          <Text variant={"subhead"} className='font-bold' style={{
+            color: "#007AFF"
+          }}>{`Arriving in ${timeToArrival} mins`}</Text>
 
           <Text variant={"body"} className=''>{` 4 passengers onboard `}</Text>
         </View>
         <View>
-          <Text variant={"subhead"} className='font-bold leading-2 tracking-wide'>{` ${licensePlate} `}</Text>
+          <Text variant={"subhead"} className='font-bold leading-2 tracking-wide' style={{
+            color: "#007AFF"
+          }}>{` ${licensePlate} `}</Text>
           <Text variant={"body"} >{` ${carName} `}</Text>
 
 
@@ -60,10 +66,10 @@ const DriverIncoming: React.FC<DriverIncomingProps> = ({
 
       <View className=' mt-2 '>
 
-        <View className='flex  gap-x-2   border-slate-200 rounded-md pb-1 px-2 pt-1 '>
+        <View className='flex  gap-x-2   border-slate-200 rounded-md pb-1  pt-1 '>
           <View className='flex flex-row gap-x-2 mt-1 items-center'>
 
-            <View className='bg-primary/80 h-3 w-3 rounded-full '></View>
+            <View className='h-3 w-3 border-[3px] border-primary/80  rounded-full '></View>
 
 
             <Text variant={"body"} className='font-semibold pl-1'>Pick-up location</Text>
@@ -78,10 +84,10 @@ const DriverIncoming: React.FC<DriverIncomingProps> = ({
 
         </View>
 
-        <View className='flex  gap-x-2 mt-1  border-slate-200 rounded-md pb-2 px-2 pt-1 mb-1'>
+        <View className='flex  gap-x-2 mt-1  border-slate-200 rounded-md pb-2 pt-1 mb-1'>
           <View className='flex flex-row gap-x-1  items-center'>
 
-            <View className='bg-red-600/80 h-3 w-3 rounded-full '></View>
+            <View className=' h-3 w-3 border-[3px] border-red-600/80 rounded-full '></View>
 
 
             <Text variant={"body"} className='font-semibold pl-2'>Destination</Text>
@@ -122,20 +128,28 @@ const DriverIncoming: React.FC<DriverIncomingProps> = ({
         </View>
 
 
-        <View className='flex flex-row  items-end gap-x-4 px-4 py-2'>
-
-          <Button onPress={callDriver} variant="ghost" rounded="full" className="bg-muted px-4 py-2  flex-row items-center justify-center gap-x-1 ">
-            <PhoneOutgoing size={18} className="text-primary p-2" />
-            <Text variant={"callout"} className='font-semibold'>Call</Text>
+        <View className='flex flex-row  items-end gap-x-4'>
+          <Button variant="ghost" rounded="full" className="px-3  py-2 flex-row items-center justify-center gap-x-2 bg-accent" onPress={() => callDriver(1234554445)}>
+            <PhoneOutgoing size={20} className="text-primary p-2" />
+            <Text variant={"footnote"} className='font-semibold' style={{
+              color: "#007AFF"
+            }}>Call</Text>
           </Button>
 
 
-          <Button variant="ghost" rounded="full" className="bg-muted p-2  flex-row items-center justify-center gap-x-1 ">
-            <MessageCircleMore size={20} className="text-primary p-2" />
-            <Text variant={"callout"} className='font-semibold'>Chat</Text>
+          <Button onPress={
+            () => openChatModal(true)
+          } variant="ghost" rounded="full" className="px-3 py-2  flex-row items-center justify-center gap-x-1 bg-accent ">
+            <MessageCircleMore size={20} className="p-2 text-primary" />
+            <Text variant={"footnote"} className='font-semibold' style={{
+              color: "#007AFF"
+            }}>Chat</Text>
           </Button>
 
-
+          {/* <Button variant="ghost" rounded="full" className="bg-primary p-2  flex-row items-center justify-center gap-x-2 ">
+                        <ShieldCheck size={20} className="text-white p-2" />
+                    </Button> */}
+          {/* <Text variant={"footnote"} className='font-medium'>Chat</Text> */}
 
         </View>
 
@@ -150,7 +164,7 @@ const DriverIncoming: React.FC<DriverIncomingProps> = ({
           <Text className='text-center py-3' variant="body">View Passengers </Text>
         </Button>
         <Button variant="destructive" rounded="base" className=" mt-2 flex-1" onPress={() => openCancelRideSheet(true)}>
-          <Text variant={"body"} color={"none"} className=' text-white text-center py-3 font-semibold'>Cancel ride</Text>
+          <Text variant={"body"} color={"none"} className=' text-white text-center py-3 font-semibold' style={{ color: "white" }}>Cancel ride</Text>
         </Button>
       </View>
 

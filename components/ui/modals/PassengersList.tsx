@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Image } from 'react-native';
-
 import { Text } from '@/components/ui/text';
 import { Star } from '@/lib/icons/icons';
 import { FlashList } from "@shopify/flash-list";
@@ -18,6 +17,7 @@ interface Passenger {
     joinedDate: string;
     boardedAt: Date;
 }
+
 
 interface PassengerListProps {
     passengers: Passenger[];

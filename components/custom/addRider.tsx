@@ -7,7 +7,7 @@ import { Trash2, UserPlus, UserRoundPen, X } from '@/lib/icons/icons';
 import AddContact from '../ui/contacts/addContact';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { friendSchema, friendsWithAddedTag } from '@/app/(verification)/schemas';
+import { friendSchema, friendsWithAddedTag } from '@/app/rider/(verification)/schemas';
 // import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 // import { Sheet, useSheetRef } from '../ui/sheets';
 import { FlashList } from '@shopify/flash-list';

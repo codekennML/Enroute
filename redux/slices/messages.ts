@@ -3,18 +3,19 @@ import { createSlice, createEntityAdapter, PayloadAction } from '@reduxjs/toolki
 import { RootState } from '../store';
 
 export interface Message {
-  id: string;
+  id?: string;
   body: string;
   sentBy: string;
-  sentAt: Date, //date
+  sentAt: string, //date
   rideId: string
-  // recipientId: string;
+  tempId?: string
   chatId: string
   // status: 'pending' | 'sent' | 'error';
 }
 
-const messagesAdapter = createEntityAdapter<Message>({
-  sortComparer: (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
+const messagesAdapter = createEntityAdapter<Message, string>({
+  selectId: (item) => item?.id ?? item.tempId!
+  // sortComparer: (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
 });
 
 const messagesSlice = createSlice({

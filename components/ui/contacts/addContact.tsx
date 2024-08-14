@@ -3,7 +3,7 @@ import { View } from 'react-native'
 import { useForm, Controller } from 'react-hook-form'
 import { Input } from '../input'
 import PhoneInput, { CountryCode } from 'react-native-phone-number-input'
-import { friendSchema } from '@/app/(verification)/schemas'
+import { friendSchema } from '@/app/rider/(verification)/schemas'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '../button'
@@ -51,11 +51,7 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal, title,
         // console.log(contactToEdit, "Conatta")
 
         if (contactToEdit) {
-
-
             const phoneUtil = PhoneNumberUtil.getInstance();
-
-
             const parsedNo = phoneUtil.parse(`+${contactToEdit?.countryCode}${contactToEdit?.mobile}`, '');
 
             // console.log(parsedNo, "PARSED NO")
@@ -76,8 +72,6 @@ const AddContact: React.FC<AddContactProps> = ({ onAddContact, openModal, title,
 
 
             }
-
-
         } else {
             phoneInputRef.current?.setState({
                 code: "234",

@@ -4,6 +4,9 @@ import messaging from '@react-native-firebase/messaging';
 import { selectNotificationInfo, setEnabled, addNotification, setToken } from "@/redux/slices/notifications/app";
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '@/redux/hooks';
+import { PermissionsAndroid } from 'react-native';
+import { Platform } from 'react-native';
+
 
 
 
@@ -44,6 +47,8 @@ const useNotify = () => {
 
     async function requestUserPermission() {
 
+        // if(Platform.OS === "ios")
+
         const authStatus = await messaging().requestPermission();
         const enabled =
             authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
@@ -65,30 +70,39 @@ const useNotify = () => {
 
     }
 
-    useEffect(() => {
-        if (!tokenEnabled) {
-            requestUserPermission()
-        }
-    }, [tokenEnabled])
+    // useEffect(() => {
+    //     if (!tokenEnabled) {
+    //         requestUserPermission()
+    //     }
+    // }, [tokenEnabled])
 
 
-    useEffect(() => {
-        const subscribe = messaging().onMessage(async remoteMessage => {
+    // useEffect(() => {
+    //     const subscribe = messaging().onMessage(async remoteMessage => {
 
-            const notifee = remoteMessage.data?.notifee
+    //         const notifee = remoteMessage.data?.notifee
 
-            const { title, active, body, imageUrl, topic, type } = notifee as Record<string, string>
+    //         const { title, active, body, imageUrl, topic, type } = notifee as Record<string, string>
 
-            dispatch(addNotification({ title, body, type, active, imageUrl, topic }));
-
-
-        });
-
-        return subscribe
-    }, [dispatch])
+    //         dispatch(addNotification({ title, body, type, active, imageUrl, topic }));
 
 
-    return { hasToken: !!token, token }
+    //     });
+
+    //     // Register background handler
+    //     const subscribeBackground =
+    //         messaging().setBackgroundMessageHandler(async remoteMessage => {
+    //             console.log('Message handled in the background!', remoteMessage);
+    //         });
+
+    //     return () => {
+    //         subscribe
+    //         subscribeBackground
+    //     }
+    // }, [dispatch])
+
+
+    // return { hasToken: !!token, token }
 }
 
 export default useNotify

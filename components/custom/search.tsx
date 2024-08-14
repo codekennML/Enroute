@@ -37,7 +37,7 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
     rider: "rider"
   }
   const { origin, destination } = useSelector(selectSearchInfo)
-
+  console.log(origin, destination, "FOLLLL")
   const userInfo = useAppSelector(selectUserInfo);
 
   const { type } = useSelector(selectSearchInfo)
@@ -74,7 +74,8 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
 
   useEffect(() => {
 
-    // console.log(origin, destination, "Viaiaiai")
+
+    console.log(origin, destination, "Heyyyy")
 
     if (origin || (destination && origin)) {
 
@@ -93,8 +94,6 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
       //Make the origin field editable 
       setInitialGeocodeComplete(true)
     }
-
-
 
     if ((!origin && !destination) || (origin && !destination)) {
       destinationInputRef.current?.focus();
@@ -365,7 +364,7 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
         setPredictions(prev => parsed.predictions);
       }
     } else {
-      console.log("LOmemmemem")
+
       setPredictions(locations.slice(0, 6))
     }
   }, [autocompleteResults, isAutoCompleteSuccess, debouncedDestinationName, debouncedOriginName]);
@@ -374,7 +373,7 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
   const handleInputChange = useCallback((text: string, inputType: "origin" | "destination") => {
 
 
-    // console.log("RANNNNNNNN")
+
     //Ensure to set autocomplete to true incase its been set to false
     setCanRunAutoComplete(true)
     setCanRunGeocode(true)
@@ -401,14 +400,15 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
       }
     }
     if (!text) {
-      console.log("simsmmsm")
+
       setPredictions(locations);
     }
   }, []);
 
   const handleBlur = (inputType: string) => {
 
-    console.log(inputType, "BLURREDDDDDD")
+
+
     // console.log(predictionLocation, selectedPlaceId)
 
     setCanRunAutoComplete(false)
@@ -420,7 +420,6 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
 
 
         setOriginName(initialLocation?.name || "Unnamed road")
-        // console.log(initialLocation, "OnBlur")
 
         setPredictionLocation(initialLocation)
 
@@ -442,7 +441,8 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
     if (isPrediction) {
 
 
-      console.log("Van")
+
+
 
       if (focusedInput === "origin") {
         setOriginName(prediction.description);
@@ -452,7 +452,8 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
       } else {
 
         setDestinationName(prediction.description);
-        // console.log("RUNNING POINT")
+
+
         if (!destinationNameEdited) setDestinationNameEdited(true);
         setSelectedPlaceId(prediction.place_id)
       }
@@ -464,7 +465,8 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
         setCanRunGeocode(false)
       }
 
-      console.log(canRunAutoComplete)
+
+
       if (focusedInput === "origin") {
         setOriginName(`${prediction.town} - ${prediction.state}, ${prediction.country} `);
         if (!originNameEdited) setOriginNameEdited(true);
@@ -473,10 +475,13 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
         // setSelectedPlaceId(prediction.place_id)
 
       } else {
-        console.log("Nissane")
-        // console.log(canRunAutoComplete, "Ekse")
+
+
+
+
         setDestinationName(`${prediction.town} - ${prediction.state}, ${prediction.country} `)
-        // // console.log("RUNNING POINT")
+
+
         if (!destinationNameEdited) setDestinationNameEdited(true);
 
         setPredictionDestination(prediction)

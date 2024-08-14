@@ -20,18 +20,13 @@ export const offersApi = api.injectEndpoints({
 
                 // Handle incoming WebSocket messages
                 const handleMessage = (message: any) => {
-                    if (message?.type !== "driverPackageStream") return
+                    if (message?.type !== "offer" || message?.type !== "offerFinal") return
 
 
                     updateCachedData((draft: EntityState<OfferCardProps, EntityId>) => {
                         //@ts-expect-error //cant infer type of draft
-                        offersAdapter.upsertOne(draft, {
-                            ...message,
-                            expiresAt: Date.now() + 60_000,
-                        });
+                        offersAdapter.upsertOne(draft, message);
                     });
-
-
                 }
 
                 // Set the message handler

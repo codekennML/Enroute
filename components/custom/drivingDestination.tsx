@@ -19,8 +19,6 @@ const DestinationDrive = () => {
       </View>
 
 
-
-
       <View>
         <View className='flex-row  items-center justify-between gap-x-2'>
           <View className='flex-row gap-x-2 '>

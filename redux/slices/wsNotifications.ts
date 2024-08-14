@@ -17,7 +17,7 @@ const notificationSlice = createSlice({
     name: 'notification',
     initialState,
     reducers: {
-        setNotification: (state, action: PayloadAction<Notification>) => {
+        setWsNotification: (state, action: PayloadAction<Notification>) => {
             state = {
                 ...state,
                 ...action.payload
@@ -27,7 +27,7 @@ const notificationSlice = createSlice({
 });
 
 // Export the actions
-export const { setNotification } = notificationSlice.actions;
+export const { setWsNotification } = notificationSlice.actions;
 
 export const notificationMessage = (state: RootState) => state.notification
 

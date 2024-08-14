@@ -19,11 +19,13 @@ import { format } from 'date-fns'
 import { BottomSheetScrollView, BottomSheetTextInput, BottomSheetView } from '@gorhom/bottom-sheet'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { packageInfoSchema, tripInfoSchema } from './(verification)/schemas'
+import { packageInfoSchema, tripInfoSchema } from './rider/(verification)/schemas'
 import { selectUserInfo } from '@/redux/slices/user'
 import { useAppDispatch } from '@/redux/hooks'
 import { ZodSchema } from 'zod'
 
+
+// You'll be able to enter a live location once your request to ride is accepted
 
 const summaryInfo = [
     {
@@ -37,10 +39,20 @@ const summaryInfo = [
 
     },
 
+    {
+        id: 2,
+        name: "pickupLocation",
+        isModal: false,
+        type: ["ride", "travel", "schedule"],
+        title: "Pick-up location",
+        subtitle: "e.g Lekki Phase I Main Gate",
+        sheetName: "scheduledPickupLocationSheet",
+
+    },
 
 
     {
-        id: 2,
+        id: 3,
         name: "busStopName",
         isModal: false,
         type: ["ride", "travel"],
@@ -51,7 +63,7 @@ const summaryInfo = [
     },
 
     {
-        id: 3,
+        id: 4,
         name: "riders",
         type: ["ride", "travel"],
         title: "Add a rider",
@@ -60,7 +72,7 @@ const summaryInfo = [
 
     },
     {
-        id: 4,
+        id: 5,
         type: ["courier"],
         name: "recipient",
         title: "Add recipient",
@@ -68,7 +80,7 @@ const summaryInfo = [
         sheetName: "addRider",
     },
     {
-        id: 5,
+        id: 6,
         type: ["travel", "ride"],
         name: "luggage",
         title: "Do you have luggage ? ",
@@ -77,7 +89,7 @@ const summaryInfo = [
     },
 
     {
-        id: 6,
+        id: 7,
         type: ["courier"],
         name: "description",
         title: "What are you sending ?",
@@ -86,7 +98,7 @@ const summaryInfo = [
 
     },
     {
-        id: 7,
+        id: 8,
         type: ["courier"],
         name: "comments",
         title: "Comments or instructions",
@@ -95,7 +107,7 @@ const summaryInfo = [
 
     },
     {
-        id: 8,
+        id: 9,
         type: ["courier", "ride", "travel"],
         name: "budget",
         title: "Suggest a budget",
@@ -115,6 +127,7 @@ const summary = () => {
     const dispatch = useAppDispatch()
 
     const budgetInputRef = useRef<TextInput | null>(null)
+    const scheduledPickupLocationSheetRef = useRef<TextInput | null>(null)
     const luggageRef = useRef<TextInput | null>(null)
     const packageDescriptionRef = useRef<TextInput | null>(null)
     const busStopInputRef = useRef<TextInput | null>(null)
@@ -197,7 +210,7 @@ const summary = () => {
             setSheetToOpen(sheet)
             summarySheetRef?.current?.present()
 
-            if (sheet === "suggestBudget" || sheet === "stopSheet") {
+            if (sheet === "suggestBudget" || sheet === "stopSheet" || sheet === "scheduledPickupLocationSheet") {
 
                 setTimeout(() => {
 
@@ -209,6 +222,8 @@ const summary = () => {
                         case "stopSheet":
                             busStopInputRef?.current?.focus()
                             break
+                        case "scheduledPickupLocationSheet":
+                            scheduledPickupLocationSheetRef?.current?.focus
 
                         default: break
 
@@ -412,6 +427,57 @@ const summary = () => {
                 <BottomSheetScrollView scrollEnabled={false}
 
                 >
+
+
+
+                    {
+                        sheetToOpen === "scheduledPickupLocationSheet" &&
+                        <View className='px-6 flex-col justify-betweeen flex-1 '>
+                            <View className='flex-row items-center mb-4 '>
+                                <Button variant={"ghost"} onPress={() => handleSheetToOpen(null)}>
+                                    <X className='text-foreground' size={32} />
+                                </Button>
+                                <Text variant={"mediumTitle"} className='flex-1 text-center my-4'>
+                                    Your pick-up
+                                </Text>
+                            </View>
+                            <Text variant={"smallTitle"} className='font-semibold text-sm pb-3'>Where do you want to be picked at ?</Text>
+
+                            <View className='flex flex-row items-center mt-3 max-w-full relative mb-3 '>
+
+                                <Controller
+                                    name="scheduledPickupLocation"
+                                    control={control}
+                                    render={({ field: { onChange, value } }) => (
+                                        <Input
+                                            ref={scheduledPickupLocationSheetRef}
+                                            value={value}
+                                            autoFocus={true}
+                                            className='border-gray-300   text-center py-3  pr-8  text-lg font-semibold placeholdr:text-sm placeholder:text-foreground/70 justify-center flex-1'
+                                            placeholder='e.g CMS Bus Station'
+                                            onChangeText={onChange}
+                                        />
+                                    )}
+                                />
+
+
+
+                                {/* </BottomSheetView> */}
+                            </View>
+                            {errors["scheduledPickupLocation"] ? <Text className="text-destructive" variant={"footnote"}>{errors["scheduledPickupLocation"].message}</Text> : <Text className='mt-1 text-xs'>A known landmark or a bus stop around your area.</Text>}
+                            <View className=' py-6 '>
+                                <Button size={"default"} rounded={"base"} className='flex-row items-center justify-center' onPress={() => {
+
+                                    handleSaveValue("busStopName")
+                                    handleSheetToOpen(null)
+                                }
+                                }
+                                >
+                                    <Text variant={"smallTitle"} color={"light"}>Save</Text>
+                                </Button>
+                            </View>
+                        </View>
+                    }
 
                     {
                         sheetToOpen === "stopSheet" &&

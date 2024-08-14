@@ -1,4 +1,4 @@
-import { Search, ChevronDown, Star, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, CarTaxiFront, ArrowRight, ArrowLeft, X, CircleUserRound, CalendarDays, BarChart, MoonStar, Locate, Radius, UserRound, CreditCard, UserPlus, MessageSquare, UserCog, Luggage, Wallet, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronUpCircle, ChevronDownCircle, Clock3, Dot, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen, Trash2, User, CircleCheck, Landmark, UserRoundPen, SquareArrowOutUpRightIcon, MessageCircleMore } from 'lucide-react-native';
+import { Search, ChevronDown, Star, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, CarTaxiFront, ArrowRight, ArrowLeft, X, CircleUserRound, CalendarDays, BarChart, MoonStar, Locate, Radius, UserRound, CreditCard, UserPlus, MessageSquare, UserCog, Luggage, Wallet, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronUpCircle, ChevronDownCircle, Clock3, Dot, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen, Trash2, User, CircleCheck, Landmark, UserRoundPen, SquareArrowOutUpRightIcon, MessageCircleMore, Send, Receipt, ChevronUp, ChevronRight, Route, CalendarRange } from 'lucide-react-native';
 
 
 import { iconWithClassName } from './iconWithClassName';
@@ -6,7 +6,6 @@ import { iconWithClassName } from './iconWithClassName';
 iconWithClassName(Compass);
 iconWithClassName(Search);
 iconWithClassName(Sun);
-iconWithClassName(ChevronDown);
 iconWithClassName(Star);
 iconWithClassName(Users);
 iconWithClassName(Ellipsis);
@@ -58,7 +57,15 @@ iconWithClassName(Landmark)
 iconWithClassName(UserRoundPen)
 iconWithClassName(SquareArrowOutUpRightIcon)
 iconWithClassName(MessageCircleMore)
+iconWithClassName(Send)
+iconWithClassName(Receipt)
+iconWithClassName(ChevronDown)
+iconWithClassName(ChevronUp)
+iconWithClassName(ChevronRight)
+iconWithClassName(Route)
+iconWithClassName(CalendarRange)
 
 
 
-export { Search, ChevronDown, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, ArrowRight, ArrowLeft, X, CalendarDays, BarChart, CircleUserRound, MoonStar, Locate, CreditCard, UserRound, UserPlus, MessageSquare, Wallet, Luggage, UserCog, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronDownCircle, ChevronUpCircle, Clock3, Dot, Star, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen, User, Trash2, CircleCheck, Landmark, UserRoundPen, SquareArrowOutUpRightIcon, MessageCircleMore };
+
+export { Search, ChevronDown, Users, Sun, Ellipsis, Home, BriefcaseBusiness, Plane, Headset, ArrowRight, ArrowLeft, X, CalendarDays, BarChart, CircleUserRound, MoonStar, Locate, CreditCard, UserRound, UserPlus, MessageSquare, Wallet, Luggage, UserCog, Check, PenLine, Plus, Minus, Info, MapPin, LocateFixed, ChevronDownCircle, ChevronUpCircle, Clock3, Dot, Star, PhoneOutgoing, SendHorizonal, ShieldCheck, Mail, CheckCircle, MessageCircle, BadgeCheck, Share, Compass, SlidersHorizontal, CalendarClock, Clock, Pen, User, Trash2, CircleCheck, Landmark, UserRoundPen, SquareArrowOutUpRightIcon, MessageCircleMore, Send, Receipt, ChevronRight, ChevronUp, CalendarRange, Route };

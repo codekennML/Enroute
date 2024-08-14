@@ -1,6 +1,6 @@
 type MessageHandler = (message: any) => void;
 
-const WEBSOCKET_URL = process.env.WEBSOCKET_SERVER_URL ?? "127.0.0.1:9001/ws/";
+const WEBSOCKET_URL = "127.0.0.1:9001/ws/";
 class WebSocketService {
 
     private static instance: WebSocketService;
@@ -30,7 +30,7 @@ class WebSocketService {
             return;
         }
 
-        this.ws = new WebSocket(`wss://example.com?token=${this.token}`);
+        this.ws = new WebSocket(`${WEBSOCKET_URL}?token=${this.token}`);
 
         this.ws.onopen = () => {
             console.log('WebSocket connection established');

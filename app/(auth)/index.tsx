@@ -14,7 +14,6 @@ const WelcomeScreen = () => {
 
   const [countryCode, setCountryCode] = useState("")
 
-
   return (
     <View className="  h-full flex flex-col justify-between  ">
       <View className=" flex flex-col justify-center items-center flex-1 bg-white">
@@ -31,7 +30,7 @@ const WelcomeScreen = () => {
 
         <Button onPress={() => {
           router.push({
-            pathname: "/rideLive",
+            pathname: "/rider",
 
             // pathname: "/rideHelp",
             params: {
@@ -55,7 +54,7 @@ const WelcomeScreen = () => {
           onPress=
           {() => {
             router.push({
-              pathname: "/(auth)/login",
+              pathname: "/driver/(tabs)",
               params: {
                 authType: "driver"
               }

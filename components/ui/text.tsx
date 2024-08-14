@@ -42,11 +42,26 @@ const TextClassContext = React.createContext<string | undefined>(undefined);
 
 const Text = React.forwardRef<TextRef, SlottableTextProps & VariantProps<typeof textVariants>>(
   ({ className, asChild = false, variant, color, ...props }, ref) => {
+
     const textClass = React.useContext(TextClassContext);
+    // console.log(textClass, variant, color)
+
     const Component = asChild ? Slot.Text : RNText;
+    // const classD = cn('text-base web:select-text',
+    //   textClass, "text-white",
+    //   className
+    // )
+
+    // textVariants({ variant, color }),
+
+    // console.log(className, 'HTYYs')
+
+
     return (
       <Component
-        className={cn('text-base  web:select-text', textClass, textVariants({ variant, color }), className)}
+        className={cn('text-sm web:select-text',
+          textVariants({ variant, color }),
+          textClass, className)}
         ref={ref}
         {...props}
       />

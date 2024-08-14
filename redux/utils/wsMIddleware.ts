@@ -6,7 +6,7 @@ import WebSocketService from './websockets';
 import { connect, disconnect, sendMessage, open, close, error } from '../slices/websocket';
 import { addOffers } from '../slices/offers';
 import { addMessage, removeMessage, updateMessageStatus } from '../slices/messages';
-
+import { updateChatInfo } from '../slices/chats';
 
 
 
@@ -26,7 +26,7 @@ const webSocketMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<AnyAction
 
             case 'chat_message':
                 //Add the icomng message to the cachee
-                const { sentBy, chatId, body, messageId, sentAt, rideId } = message.payload
+                const { sentBy, chatId, body, _id: messageId, sentAt, rideId, driverFirstName, driverLastName } = message.payload
 
                 //Check the state of the application if it is in the background, sent anotification of message, otherwise z\
 
@@ -43,7 +43,21 @@ const webSocketMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<AnyAction
                     }));
                 }
                 else {
-                    //TODO SEND PUSH NOTIFICATION
+                    //Dispatch an appwide notification, this notification will be a push notufucation shown on the notification tab    
+
+                    store.dispatch(updateChatInfo({
+                        chatId,
+                        rideId,
+                        unreadCount: 0,
+                        latestMessage: {
+                            sentBy,
+                            sentAt,
+                            body,
+                            id: messageId,
+                        }
+                    }))
+
+
                 }
 
 
@@ -53,7 +67,7 @@ const webSocketMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<AnyAction
             case "ws_response":
                 //Check if there was an error here from the response  
 
-                const { success, topic, message } = message.payload
+                const { success, topic } = message.payload
 
                 if (topic === "chatMessage" && !success) {
                     store.dispatch(removeMessage(JSON.parse(message)?.tempId));
@@ -62,8 +76,8 @@ const webSocketMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<AnyAction
                     store.dispatch(updateMessageStatus({
                         id: message.payload.tempId,
                         changes: {
-                            id: message.payload.messageid,
-                            status: 'sent'
+                            id: message.Id,
+                            // status: 'sent'
                         }
                     }));
                 }
@@ -98,7 +112,7 @@ const webSocketMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<AnyAction
     });
 
     return next => (action) => {
-        // console.log("action.type", action?.type)
+        console.log("action.type", action?.type)
         switch (action.type) {
             case connect?.type:
                 webSocketService.updateToken(action.payload.token);
@@ -109,12 +123,15 @@ const webSocketMiddleware: Middleware = (store: MiddlewareAPI<Dispatch<AnyAction
                 break;
 
             case sendMessage?.type:
+                // console.log(action.payload)
+                if (action?.payload?.chatId) {
+
+                    store.dispatch(addMessage(action.payload))
+                }
                 if (webSocketService.isOpen()) {
-                    console.log(action.payload)
                     webSocketService.send(action.payload);
                 }
                 break;
-
 
             default:
                 break;

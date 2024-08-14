@@ -15,11 +15,10 @@ function Slider({
 
   return (
     <RNSlider
-      thumbTintColor={thumbTintColor ?? Platform.OS === 'ios' ? theme.primary : theme.background}
-      minimumTrackTintColor={minimumTrackTintColor ?? theme.primary}
-      maximumTrackTintColor={
-        maximumTrackTintColor ?? Platform.OS === 'android' ? theme.primary : undefined
-      }
+      // thumbTintColor={thumbTintColor ?? Platform.OS === 'ios' ? theme.primary : theme.background}
+      thumbTintColor='#007AFF'
+      minimumTrackTintColor="#007AFF"
+      maximumTrackTintColor="lightgray"
       {...props}
     />
   );

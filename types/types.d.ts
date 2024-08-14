@@ -49,6 +49,7 @@ export interface UserRideInfo {
   rideId?: string
   budget: number,
   busStopName: string
+  scheduledPickupLocation?: string //This is for the pickup location of the scheduled rides originating from the schedule page 
   riders: RiderData[],
   origin?: Location,
   destination?: Location,
@@ -73,6 +74,7 @@ export interface UserInfo {
   // type: string 
   countryCode: number,
   deviceToken: string
+  currentLocation?: Location
 }
 
 export type UserUpdateData = Partial<Omit<UserInfo, "country" | "state" | "roles" | "subRole" | "ratings">>

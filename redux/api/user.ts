@@ -12,7 +12,7 @@ const userApi = api.injectEndpoints({
                 url: `/users/:${_id}`,
 
             }),
-            providesTags: ['chat'],
+            providesTags: ['user'],
         }),
 
         updateUser: builder.mutation<Partial<UserUpdateData>, Partial<UserUpdateData>>({

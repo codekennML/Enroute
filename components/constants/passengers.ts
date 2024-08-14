@@ -7,6 +7,8 @@ export const passengers = [
         pickupPoint: "5th Avenue",
         destination: "Central Park",
         joinedDate: "2021-06-15",
+        mobile: "633737737474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T15:30:00Z")
     },
     {
@@ -17,6 +19,8 @@ export const passengers = [
         pickupPoint: "42nd Street",
         destination: "Times Square",
         joinedDate: "2020-04-23",
+        mobile: "3773567474",
+        countryCode: 1,
         boardedAt: new Date("2024-07-22T15:45:00Z")
     },
     {
@@ -27,6 +31,8 @@ export const passengers = [
         pickupPoint: "8th Avenue",
         destination: "Empire State Building",
         joinedDate: "2019-10-11",
+        mobile: "737737474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T16:00:00Z")
     },
     {
@@ -37,6 +43,8 @@ export const passengers = [
         pickupPoint: "Fulton Street",
         destination: "Brooklyn Bridge",
         joinedDate: "2022-01-05",
+        mobile: "933737737474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T16:15:00Z")
     },
     {
@@ -47,6 +55,8 @@ export const passengers = [
         pickupPoint: "Liberty Street",
         destination: "Statue of Liberty",
         joinedDate: "2023-03-17",
+        mobile: "673737737474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T16:30:00Z")
     },
     {
@@ -57,6 +67,8 @@ export const passengers = [
         pickupPoint: "6th Avenue",
         destination: "Rockefeller Center",
         joinedDate: "2018-07-21",
+        mobile: "78737737474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T16:45:00Z")
     },
     {
@@ -67,6 +79,8 @@ export const passengers = [
         pickupPoint: "Madison Avenue",
         destination: "Metropolitan Museum of Art",
         joinedDate: "2017-12-30",
+        mobile: "2737737474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T17:00:00Z")
     },
     {
@@ -77,6 +91,8 @@ export const passengers = [
         pickupPoint: "Broadway Street",
         destination: "Broadway",
         joinedDate: "2021-08-09",
+        mobile: "3737737474",
+        countryCode: 80,
         boardedAt: new Date("2024-07-22T17:15:00Z")
     },
     {
@@ -87,6 +103,8 @@ export const passengers = [
         pickupPoint: "Park Avenue",
         destination: "Times Square",
         joinedDate: "2020-02-14",
+        mobile: "37737474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T17:30:00Z")
     },
     {
@@ -97,6 +115,8 @@ export const passengers = [
         pickupPoint: "59th Street",
         destination: "Central Park",
         joinedDate: "2019-05-27",
+        mobile: "37739877474",
+        countryCode: 44,
         boardedAt: new Date("2024-07-22T17:45:00Z")
     }
 ];

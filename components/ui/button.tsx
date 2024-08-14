@@ -20,7 +20,6 @@ const buttonVariants = cva(
             },
             size: {
                 default: 'h-10  py-2 native:h-12 native:px-5 native:py-3',
-                none: '',
                 sm: 'h-8 rounded-md ',
                 badge: "h-8 ",
                 lg: 'h-11 rounded-md px-8 native:h-14',
@@ -35,18 +34,17 @@ const buttonVariants = cva(
         },
         defaultVariants: {
             variant: 'default',
-            size: 'none',
-            rounded: "sm"
+            rounded: "base"
         },
     }
 );
 
 const buttonTextVariants = cva(
-    'web:whitespace-nowrap  text-foreground web:transition-colors',
+    'web:whitespace-nowrap text-background  web:transition-colors',
     {
         variants: {
             variant: {
-                default: 'text-white',
+                default: 'text-background',
                 destructive: 'text-destructive-foreground',
                 outline: 'group-active:text-accent-foreground',
                 secondary: 'text-secondary-foreground group-active:text-secondary-foreground',
@@ -75,13 +73,12 @@ const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>
     ({ className, variant, rounded, size, ...props }, ref) => {
         return (
             <TextClassContext.Provider
-                value={buttonTextVariants({ variant, className: 'web:pointer-events-none' })}
+                value={buttonTextVariants({ variant, size, className: 'web:pointer-events-none' })}
             >
                 <Pressable
                     className={cn(
                         props.disabled && 'opacity-50 web:pointer-events-none',
-                        buttonVariants({ variant, size, rounded }),
-                        className,
+                        buttonVariants({ variant, size, rounded, className })
                     )}
                     ref={ref}
                     role='button'

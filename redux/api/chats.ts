@@ -23,6 +23,9 @@ interface Message {
     status?: 'pending' | 'sent' | 'error';
 }
 
+export interface MessageQuery { chatId: string, sort?: string, cursor?: string, rideId: string }
+
+
 export const chatApi = api.injectEndpoints({
     endpoints: (builder) => ({
         createChat: builder.query<Chat, { users: string[], status: "open" | "completed", rideId: string, tripId: string, }>({
@@ -43,7 +46,7 @@ export const chatApi = api.injectEndpoints({
             //   providesTags: (result, error, id) => [{ type: 'Chat', id }],
         }),
 
-        getChatMessages: builder.query<Message[], { chatId: string, sort?: string, cursor?: string, rideId: string }>({
+        getChatMessages: builder.query<Message[], MessageQuery>({
             query: (args) => ({
                 url: `messages`,
                 params: {

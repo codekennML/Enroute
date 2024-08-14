@@ -2,8 +2,49 @@ import React from 'react';
 import { View, Image } from 'react-native';
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button"
+import { Sheet, useSheetRef } from '@/components/ui/sheets';
+import RiderList from '@/components/custom/addRider';
+import { X } from '@/lib/icons/icons';
+import { Input } from '@/components/ui/input';
+import { Controller, useForm } from 'react-hook-form';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '@/redux/slices/user';
+import { useAppDispatch } from '@/redux/hooks';
+import { addRideRiders, setDestination, setOrigin, setTripType, updateOtherTripData } from '@/redux/slices/search';
+import { router } from 'expo-router';
 
-const RideSummary = () => {
+interface RideSummaryProps {
+    destination: Location,
+    origin: Location,
+    scheduledTripId?: string
+    tripType: "in-city" | "travel" | "summary"  //Either a scheduled ride/ travel  or a list of completed ride
+    tripDate: Date
+    canCharter?: boolean
+}
+
+
+const RideSummary: React.FC<RideSummaryProps> = ({
+    destination, origin, tripDate, tripType, canCharter, scheduledTripId
+}) => {
+
+    const dispatch = useAppDispatch()
+    const user = useSelector(selectUserInfo)
+
+
+    // const handleBookNow = (action: string | undefined) => {
+    //     //Reset the trip type 
+
+    //     if (tripType !== "summary") {
+    //         router.push({
+    //             pathname: "/summary",
+    //             params: {
+    //                 scheduledTripId
+    //             }
+    //         })
+    //     }
+
+    // }
+
     return (
         <View className="bg-white p-4 rounded-lg">
             <View className='flex-row justify-between items-center'>
@@ -69,12 +110,15 @@ const RideSummary = () => {
             </View>
 
             <Button
+                // onPress={}
                 variant="default"
                 rounded="base"
                 className="mt-4 justify-center  items-center flex-row p-3"
             >
                 <Text variant={"subhead"} className='text-center font-semibold'>Rebook</Text>
             </Button>
+
+
         </View>
     );
 };

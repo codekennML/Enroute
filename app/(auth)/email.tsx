@@ -4,13 +4,25 @@ import { Text } from '@/components/ui/text'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { router } from 'expo-router'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from "zod"
 
 const names = () => {
+
     const [email, setemail] = useState('')
-
-
     const [focusedInput, setFocusedInput] = useState("")
     const emailRef = useRef<TextInput>(null)
+
+    const { control, formState: { errors } } = useForm({
+        mode: "onBlur",
+        defaultValues: {
+            email: ""
+        },
+        resolver: zodResolver(z.object({
+            email: z.string().email("Please enter a valid email address")
+        }))
+    })
 
     const handleEmailSubmit = () => {
         console.log(email)
@@ -35,13 +47,17 @@ const names = () => {
                         onBlur={() => setFocusedInput("")}
                         // onSubmitEditing={(e) => handleDestinationSubmit(e.nativeEvent.text)}
                         // onChangeText={(text) => handleChange(text, "destination")}
-                        aria-labelledbyledBy='First Name Label'
-                        aria-errormessage='Last Name errror message '
+                        aria-labelledbyledBy='email_error_abel'
+                        aria-errormessage='email_error_label'
                         style={{
                             fontSize: 14
                         }}
                     />
 
+                    {
+                        errors["email"] &&
+                        <Text>{errors["email"]}</Text>
+                    }
 
                 </View>
 
@@ -50,7 +66,7 @@ const names = () => {
             <View>
 
                 <Text variant="callout" className="text-left text-gray-500 mb-4">
-                    Enroute will not send anything without your consent.
+                    Purplemetro will not send anything without your consent.
                 </Text>
 
                 <Button variant="default" size={"lg"} rounded="base" className=" flex justify-center items-center text-white" onPress={() => {

@@ -22,8 +22,6 @@ const RaiseFare = () => {
     const value = 100
 
 
-    // const  
-
     const updateBudget = async (op: string) => {
 
         console.log(op)
@@ -58,8 +56,8 @@ const RaiseFare = () => {
                 <View className='flex-1 justify-center items-center px-3'>
                     <Text className='text-[25px] font-semibold text-center'>  {budget}</Text>
                 </View>
-                <Button size={'sm'} onPress={() => updateBudget("add")} rounded="base" className='bg-primary px-6 items-center justify-center flex flex-row  ws-max h-12'>
-                    <Text variant={"subhead"} className=' font-semibold text-white'>+ 100</Text>
+                <Button variant="ghost" size={'sm'} onPress={() => updateBudget("add")} rounded="base" className='bg-primary px-6 items-center justify-center flex flex-row  ws-max h-12'>
+                    <Text variant={"subhead"} className=' font-semibold text-white' style={{ color: "white" }}>+ 100</Text>
                 </Button>
             </View>
 

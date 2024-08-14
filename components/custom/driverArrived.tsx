@@ -13,6 +13,7 @@ interface DriverArrivedProps {
     licensePlate: string
     openPassengersSheet: (isOpen: boolean) => void
     openCancelRideSheet: (isOpen: boolean) => void
+    openChatModal: Dispatch<SetStateAction<boolean>>
 }
 
 const DriverArrived: React.FC<DriverArrivedProps> = ({
@@ -20,13 +21,16 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
     carName,
     licensePlate,
     openCancelRideSheet,
-    openPassengersSheet
+    openPassengersSheet,
+    openChatModal
 }) => {
     return (
         <View className='pb-4 flex-1 h-full' >
             <View className='flex flex-row justify-between items-center'>
                 <View className='flex flex-1 '>
-                    <Text variant={"subhead"} className='font-bold'>{`Driver has arrived`}</Text>
+                    <Text variant={"subhead"} className='font-bold' style={{
+                        color: "#007AFF"
+                    }}>{`Driver has arrived`}</Text>
 
                     <Text variant={"body"} className=''>{` 4 passengers onboard `}</Text>
                 </View>
@@ -34,7 +38,9 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
 
 
                 <View>
-                    <Text variant={"smallTitle"} className='font-bold leading-2 tracking-wide'>{` ${licensePlate} `}</Text>
+                    <Text variant={"smallTitle"} className='font-bold leading-2 tracking-wide' style={{
+                        color: "#007AFF"
+                    }}>{` ${licensePlate} `}</Text>
                     <Text variant={"body"} >{` ${carName} `}</Text>
 
 
@@ -58,7 +64,7 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
 
                     <View>
 
-                        <Text className='text-foreground font-semibold' variant={"body"}>A. Vernon</Text>
+                        <Text className='text-foreground font-semibold' variant={"body"} style={{ color: "#007AFF" }}>A. Vernon</Text>
                         <View className='flex flex-row items-center gap-x-2 '>
 
                             <Text className='text-foreground font-medium' variant={"callout"}>1240 trips</Text>
@@ -72,14 +78,19 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
                 <View className='flex flex-row  items-end gap-x-4'>
                     <Button variant="ghost" rounded="full" className="px-3  py-2 flex-row items-center justify-center gap-x-2 bg-accent" onPress={() => { router.push("/map") }}>
                         <PhoneOutgoing size={20} className="text-primary p-2" />
-                        <Text variant={"footnote"} className='font-semibold'>Call</Text>
+                        <Text variant={"footnote"} className='font-semibold' style={{
+                            color: "#007AFF"
+                        }}>Call</Text>
                     </Button>
 
 
-
-                    <Button variant="ghost" rounded="full" className="px-3 py-2  flex-row items-center justify-center gap-x-1 bg-accent ">
+                    <Button onPress={
+                        () => openChatModal(true)
+                    } variant="ghost" rounded="full" className="px-3 py-2  flex-row items-center justify-center gap-x-1 bg-accent ">
                         <MessageCircleMore size={20} className="p-2 text-primary" />
-                        <Text variant={"footnote"} className='font-semibold'>Chat</Text>
+                        <Text variant={"footnote"} className='font-semibold' style={{
+                            color: "#007AFF"
+                        }}>Chat</Text>
                     </Button>
 
                     {/* <Button variant="ghost" rounded="full" className="bg-primary p-2  flex-row items-center justify-center gap-x-2 ">
