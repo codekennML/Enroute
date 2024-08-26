@@ -26,7 +26,6 @@ const Toast: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [isVisible, dispatch]);
-    console.log(notification, "notif")
 
     return (
         <>
@@ -37,7 +36,7 @@ const Toast: React.FC = () => {
                             type={type}
                             open={isVisible}
                             onOpenChange={(open) => !open && dispatch(hideToast())}
-                            className={`bg-accent border-border flex-row justify-between items-center p-4 rounded-md ${notification === "error" ? "bg-destructive-foreground" : notification === "success" ? "bg-green-300" : "bg-accent"}`}
+                            className={`bg-accent border-border flex-row justify-between items-center p-4 rounded-md ${notification === "danger" ? "bg-destructive-foreground" : "bg-accent"}`}
                         >
                             <View className='gap-1.5'>
                                 {/* <ToastPrimitive.Title className='text-foreground text-sm'>{title}</ToastPrimitive.Title> */}
@@ -45,12 +44,12 @@ const Toast: React.FC = () => {
                                     <View className='flex flex-row gap-x-2 items-center max-w-[80%] overflow'>
                                         <View>
 
-                                            <Info size={18} className={`${notification === "error" ? "text-white" : notification === "success" ? "text-white" : "text-primary"} `} />
+                                            <Info size={18} className={`${notification === "danger" ? "text-white" : notification === "success" ? "text-green-600" : notification === "warning" ? "text-amber-500" : "text-foreground"} `} />
 
                                         </View>
                                         <View className='max-w-[75%]'>
 
-                                            <Text variant={"body"} color="none" className={`${notification === "error" ? "text-white" : notification === "success" ? "text-white" : "text-yellow-600"} break-words text-ellipsis overflow-hidden `}>{message}</Text>
+                                            <Text variant={"body"} className={`${notification === "danger" ? "text-white" : notification === "success" ? "text-green-600" : notification === "warning" ? "text-amber-500" : "text-foreground"} `}>{message}</Text>
 
                                         </View>
                                     </View>

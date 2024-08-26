@@ -4,16 +4,25 @@ import { Text } from "@/components/ui/text"
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Dot, ShieldCheck } from '@/lib/icons/icons'
-import { router } from 'expo-router'
+import { router, useSegments } from 'expo-router'
 
 
 const documents = () => {
+
+    const segments = useSegments();
+
+    // Access the current path
+    const currentRoute = `/${segments.join('/')}`;
+
+    console.log('Current Route:', currentRoute);
+
+
     return (
         <View className=' flex flex-col h-full p-4'>
 
             <View className='p-4 flex-1 mt-5'>
                 <View className=' flex-row items-center justify-center'>
-                    <Image source={require("../assets/images/verify2.png")} resizeMode='cover' className='h-[120px] w-[120px] justify-center' />
+                    <Image source={require("../../assets/images/verify2.png")} resizeMode='cover' className='h-[120px] w-[120px] justify-center' />
                     <View>
 
                     </View>
@@ -54,19 +63,14 @@ const documents = () => {
 
                     </View>
 
-
-
-
                 </View>
-
-
 
             </View>
             <View>
 
                 <Button
                     onPress={() => router.push({
-                        pathname: "(verification)/personalInfo"
+                        pathname: "/verification/photo"
                     })}
                     size={"lg"} rounded="base" className='flex-row items-center justify-center  text-white'>
                     <Text className='font-semibold'>Begin</Text>

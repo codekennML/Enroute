@@ -1,7 +1,19 @@
+
+
 import { api } from './apiSlice'; // Adjust the import path as necessary
 
 export const authApi = api.injectEndpoints({
     endpoints: (builder) => ({
+
+        verifyExistingMobile: builder.query<any, { mobile: number; countryCode: number }>({
+            query: (args) => ({
+                url: '/auth/existingMobile',
+                method: 'GET',
+                body: args,
+            }),
+            providesTags: ["auth"],
+        }),
+
         signInMobile: builder.mutation<any, { mobile: number; countryCode: number }>({
             query: (args) => ({
                 url: '/auth/mobile',
@@ -142,8 +154,10 @@ export const authApi = api.injectEndpoints({
 });
 
 export const {
+
     useSignInMobileMutation,
     useSignInEmailMutation,
+    useLazyVerifyExistingMobileQuery,
     useVerifyUserEmailMutation,
     useCheckDuplicateAccountOfAnotherRoleMutation,
     useHandleDuplicateRolesAccountMutation,

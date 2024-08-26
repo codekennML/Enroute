@@ -1,18 +1,14 @@
-import { Tabs } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { useColorScheme } from 'nativewind';
-import { COLOR_THEME } from '@/lib/constants';
-import { Home, CalendarDays, BarChart, CircleUserRound, CalendarClock } from '@/lib/icons/icons';
-import { useGetGeocodedLocationQuery } from '@/redux/api/maps';
-import useLocation from '@/lib/useLocation';
-import { setOrigin } from '@/redux/slices/search';
-import { useAppDispatch } from '@/redux/hooks';
+import { ProtectedStack } from "@/components/ui/auth/protected";
+import { ROLES } from "@/lib/config/enum";
+import { COLOR_THEME } from "@/lib/constants";
+import { useColorScheme } from "@/lib/useColorScheme";
+import { Tabs } from "expo-router";
+import { Home, BarChart, CircleUserRound } from "lucide-react-native";
 
 
-export default function TabLayout() {
+function TabLayout() {
+
     const { colorScheme } = useColorScheme();
-
-
 
     return (
         <Tabs
@@ -70,5 +66,14 @@ export default function TabLayout() {
         </Tabs>
 
 
+    );
+}
+
+export default function ProtectedDriverStack() {
+    return (
+        <ProtectedStack
+            component={TabLayout}
+            allowedRoles={[parseInt(ROLES.DRIVER)]}
+        />
     );
 }

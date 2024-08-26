@@ -4,20 +4,21 @@ import { Button } from './button'
 import { router } from 'expo-router'
 import { ArrowLeft, X } from '@/lib/icons/icons'
 
-const Back: React.FC<{ iconType?: "arrow" | "close" }> = ({
-    iconType
+const Back: React.FC<{ iconType?: "arrow" | "close", iconSize?: number }> = ({
+    iconType,
+    iconSize
 }) => {
 
     return (
         <>
             {
                 router.canGoBack() &&
-                <Button variant={"ghost"} className='flex-row items-center justify-center w-10 mb-4' onPress={() => router.back()}>
+                <Button variant={"ghost"} className='flex-row items-center justify-start w-10 mb-4 ' onPress={() => router.back()}>
                     {
                         iconType === "arrow" ?
-                            <ArrowLeft size={35} className="text-foreground" />
+                            <ArrowLeft size={iconSize ?? 35} className="text-foreground" />
                             :
-                            <X size={35} className="text-foreground" />
+                            <X size={iconSize ?? 35} className="text-foreground" />
                     }
                 </Button>
             }

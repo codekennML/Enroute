@@ -15,7 +15,7 @@ import { PhoneOutgoing, Send } from "@/lib/icons/icons"
 import { format } from "date-fns";
 import { useAppDispatch } from '@/redux/hooks';
 import { MessageQuery, useGetChatMessagesQuery } from '@/redux/api/chats';
-import { messageSchema } from "@/app/rider/(verification)/schemas/index"
+import { messageSchema } from "@/app/verification/schemas/index"
 import { ArrowLeft } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';

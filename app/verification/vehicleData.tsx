@@ -51,7 +51,6 @@ const VehicleDataArray = [
         placeholder: "e.g MLK459T",
         options: {
             type: "text",
-
             schemaType: "string"
         },
     },
@@ -204,7 +203,7 @@ const VehicleData = () => {
 
     const handleSubmitVehicleData = () => {
         router.push({
-            pathname: "/(verification)/vehicle/inspection"
+            pathname: "/verification/vehicleInspection"
         })
     }
 
@@ -213,8 +212,8 @@ const VehicleData = () => {
             <View className="px-6  h-full justify-between ">
                 <View className='flex-1'>
                     <View className='mt-[10%] '>
-                        <Back />
-                        <Text className='text-[24px] font-semibold text-foreground pb-5 text-center'>Vehicle Information </Text>
+                        <Back iconType='arrow' iconSize={30} />
+                        <Text className='text-[24px] font-semibold text-foreground pb-5 '>Vehicle Information </Text>
                     </View>
                     <ScrollView scrollEnabled={true} horizontal={false} showsVerticalScrollIndicator={false}>
                         <View className='flex flex-col gap-y-1'>

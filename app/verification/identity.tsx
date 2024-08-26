@@ -124,7 +124,7 @@ const IdentityVerificationStep: React.FC<{ dynamicFields: DynamicField[] }> = ({
 
     const handleSubmitDocuments = () => {
         router.push({
-            pathname: "/(verification)/emergency"
+            pathname: "/verification/emergency"
         })
     }
 
@@ -132,9 +132,9 @@ const IdentityVerificationStep: React.FC<{ dynamicFields: DynamicField[] }> = ({
         <SafeAreaView>
             <View className="px-6  h-full justify-between ">
                 <View className='flex-1'>
-                    <View className='mt-0'>
-                        <Back />
-                        <Text className='text-[24px] font-semibold text-foreground pb-5 text-center'>Your Documents </Text>
+                    <View className='mt-4'>
+                        <Back iconType='arrow' iconSize={30} />
+                        <Text className='text-[22px] font-semibold text-foreground pb-5 '>Your Documents </Text>
                     </View>
                     <ScrollView scrollEnabled={true} horizontal={false} showsVerticalScrollIndicator={false}>
                         <View className='flex flex-col gap-y-3'>

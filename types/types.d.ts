@@ -60,22 +60,24 @@ export interface UserRideInfo {
 
 }
 
-export interface UserInfo {
+export type UserInfo = {
   country?: Omit<Location, "placeId" | "town" | "state" | "country"> & { short_name?: string, currency: string },
   state?: Omit<Location, "placeId" | "town" | "state" | "country">
-  firstName: string
-  roles: number
+  firstName?: string
+  lastName?: string
+  roles?: number
   subRole?: number
   lastName: string
-  avatar: string
-  _id: string,
-  email: string
-  mobile: string,
+  avatar?: string
+  _id?: string,
+  email?: string
+  mobile?: string,
+  verified?: boolean
   // type: string 
-  countryCode: number,
-  deviceToken: string
+  countryCode?: number,
+  deviceToken?: string
   currentLocation?: Location
-}
+} | undefined
 
 export type UserUpdateData = Partial<Omit<UserInfo, "country" | "state" | "roles" | "subRole" | "ratings">>
 

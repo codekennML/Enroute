@@ -4,8 +4,20 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from "@/lib/icons/icons"
 import { router } from 'expo-router';
+import { useAuth } from '@/lib/useAuth';
+import { ROLES } from '@/lib/config/enum';
 
 const DocumentVerificationScreen = () => {
+
+    const { roles } = useAuth()
+
+    const handleCompleteVerification = () => {
+
+        router.replace({
+            pathname: roles === ROLES.DRIVER ? "/driver" : "/rider"
+        })
+    }
+
     return (
         <View className="flex-col h-full items-center justify-center px-5 ">
             <View className='flex-1 mt-[15%]  items-center '>
@@ -33,9 +45,7 @@ const DocumentVerificationScreen = () => {
             </View>
 
             <View className=' bg-white w-full pb-4'>
-                <Button size={"lg"} rounded="base" className='flex-row items-center justify-center' variant={"default"} onPress={() => router.push({
-                    pathname: "/(tabs)"
-                })}>
+                <Button size={"lg"} rounded="base" className='flex-row items-center justify-center' variant={"default"} onPress={handleCompleteVerification}>
                     <Text variant={"smallTitle"} className='font-semibold'>Finish</Text>
                 </Button>
             </View>

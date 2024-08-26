@@ -1,61 +1,62 @@
 import Back from "@/components/ui/back"
-import { useForm } from "react-hook-form";
 import { View, ScrollView, SafeAreaView } from "react-native"
 import { Text } from "@/components/ui/text"
-import DynamicFieldComponent from "@/components/ui/dynamicField";
-import { Button } from "@/components/ui/button";
-import { router } from "expo-router";
+import { useForm } from "react-hook-form"
+import DynamicFieldComponent from "@/components/ui/dynamicField"
+import { Button } from "@/components/ui/button"
+import { router } from "expo-router"
 
-const vehicleInspectionDocs = [
+const vehicleInsuranceDocs = [
     {
-        id: "inspection_provider",
-        name: "inspection_provider",
-        displayName: "Inspection Provider",
-        placeholder: "Mallanz Vehicle Inspection Limited",
+        id: "insurance_provider",
+        name: "insurance_provider",
+        displayName: "Insurance Provider ",
+        placeholder: "",
         options: {
             type: "text",
             schemaType: "string"
         }
     },
+
     {
-        id: "inspection_issue_date",
-        name: "inspection_issue_date",
-        displayName: "Issue Date",
-        placeholder: "DD/MM/YYY",
+        id: "insurance_id",
+        name: "insurance_id",
+        displayName: "Insurance ID ",
+        placeholder: "",
         options: {
             type: "text",
-
-            schemaType: "date"
-        }
-    },
-    {
-        id: "inspection_expiry_date",
-        name: "inspection_expiry_date",
-        displayName: "Issue Date",
-        placeholder: "DD/MM/YYY",
-        options: {
-            type: "text",
-
-            schemaType: "date"
-        }
-
-    },
-
-    {
-        id: "inspection_image",
-        name: "inspection_image",
-        displayName: "Inspection Report Image",
-        placeholder: "DD/MM/YYY",
-        options: {
-            type: "image",
             schemaType: "string"
         }
+    },
+
+    {
+        id: "insurance_issue_date",
+        name: "insurance_issue_date",
+        displayName: "Insurance Issue Date",
+        placeholder: "DD/MM/YYY",
+        options: {
+            type: "text",
+            schemaType: "date"
+        }
+    },
+
+    {
+        id: "insurance_expiry_date",
+        name: "insurance_expiry_date",
+        displayName: "Insurance Expiry Date ",
+        placeholder: "DD/MM/YYY",
+        options: {
+            type: "text",
+            schemaType: "date"
+        }
+
     }
+
 
 ]
 
 
-const vehicleInspection = () => {
+const vehicleInsurance = () => {
     const { control, watch, formState: { errors } } = useForm({
 
     })
@@ -77,25 +78,24 @@ const vehicleInspection = () => {
     const allFieldsFilled = Object.values(watchedValues).every(Boolean);
     console.log(watchedValues)
 
-    const handleSubmitInspection = () => {
+    const handleSubmitInsurance = () => {
         router.push({
-            pathname: "/(verification)/vehicle/insurance"
+            pathname: "/verification/processing"
         })
     }
-
 
     return (
         <SafeAreaView>
             <View className="px-6  h-full justify-between ">
                 <View className='flex-1'>
-                    <View className='mt-[10%]'>
-                        <Back />
-                        <Text className='text-[24px] font-semibold text-foreground pb-5 text-center'>Vehicle Inspection </Text>
+                    <View className='mt-4'>
+                        <Back iconType='arrow' iconSize={30} />
+                        <Text className='text-[24px] font-semibold text-foreground pb-5 '>Vehicle Insurance</Text>
                     </View>
                     <ScrollView scrollEnabled={true} horizontal={false} showsVerticalScrollIndicator={false}>
                         <View className='flex flex-col gap-y-1'>
 
-                            {vehicleInspectionDocs.map((field) => (
+                            {vehicleInsuranceDocs.map((field) => (
                                 <DynamicFieldComponent
                                     key={field.id}
                                     field={field}
@@ -107,8 +107,8 @@ const vehicleInspection = () => {
                     </ScrollView>
                 </View>
                 <View className=' bg-white w-full pb-4'>
-                    <Button size={"lg"} rounded="base" className='flex-row items-center justify-center' variant={"default"} disabled={hasErrors || !!allFieldsFilled} onPress={handleSubmitInspection}>
-                        <Text variant={"smallTitle"} className='font-semibold'>Continue</Text>
+                    <Button size={"lg"} rounded="base" className='flex-row items-center justify-center' variant={"default"} disabled={hasErrors || !!allFieldsFilled} onPress={handleSubmitInsurance}>
+                        <Text variant={"smallTitle"} className='font-semibold'>Submit</Text>
                     </Button>
                 </View>
             </View>
@@ -116,4 +116,4 @@ const vehicleInspection = () => {
     )
 }
 
-export default vehicleInspection
+export default vehicleInsurance

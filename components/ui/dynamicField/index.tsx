@@ -1,5 +1,5 @@
 
-import { DynamicField } from "@/app/rider/(verification)/multistep";
+import { DynamicField } from "@/app/(verification)/multistep";
 import { Controller } from "react-hook-form";
 import { View } from "react-native";
 import ImageUpload from "../imageUpload";

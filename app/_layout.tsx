@@ -33,7 +33,10 @@ import {
 } from 'react-native-vision-camera'
 
 import { router, Slot, Stack } from "expo-router"
-import Navigation from './index';
+import * as SecureStore from "expo-secure-store"
+
+import { updateOtherUserData } from '@/redux/slices/user';
+
 
 
 // Geolocation.setRNConfiguration(config)
@@ -53,21 +56,14 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
 
-  //Check for ongoing trip  asn redirect to rideLive
-
-  //update firebase user token , if it is different from the current one 
-
-
-
-  //Set the user location in state , 
-
-
-
 
   const { colorScheme, setColorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
   const [countryCode, setCountryCode] = useState("")
   const { hasPermission, requestPermission } = useCameraPermission()
+  const [userRole, setUserRole] = useState<number | null | undefined>(null)
+  const [isReady, setIsReady] = useState(false);
+
 
   const [fontsLoaded] = useFonts({
     Inter_400Regular,
@@ -80,8 +76,49 @@ export default function RootLayout() {
     "Roboto": require("../assets/fonts/Roboto.ttf"),
   });
 
+
+  const handleAuthentication = async () => {
+
+    try {
+
+      const accessToken = await SecureStore.getItemAsync("x_a_t")
+      const refreshToken = await SecureStore.getItemAsync("x_r_t")
+      const user = await SecureStore.getItemAsync("user") || "66c4acbec38b4f7853d71031"
+
+
+      const apiUrl = Platform.OS === "ios" ? "http://127.0.0.1:3500/api" : "http://10.0.2.2:3500/api"
+
+      const response = await axios.get(`${apiUrl}/user/${user}`, {
+        headers: {
+          x_r_t: refreshToken,
+          x_a_t: accessToken,
+          "Content-Type": "application/json"
+        },
+        withCredentials: true
+      })
+
+      const { data } = response?.data?.data
+
+      await store.dispatch(updateOtherUserData({
+        ...data
+      }))
+      if (data) {
+
+        setUserRole(data.roles)
+      } else {
+        setUserRole(undefined)
+      }
+
+
+    } catch (e) {
+      setUserRole(undefined)
+      console.log(JSON.stringify(e))
+
+    }
+  }
+
   useEffect(() => {
-    const loadTheme = async () => {
+    const loadApp = async () => {
       const theme = await AsyncStorage.getItem('theme');
       if (Platform.OS === 'web') {
         // Adds the background color to the html element to prevent white background on overscroll.
@@ -170,36 +207,23 @@ export default function RootLayout() {
       // console.log("Emama")
       setCountryData();
 
+      await handleAuthentication()
     };
 
-    loadTheme().finally(() => {
-      if (fontsLoaded) {
+    if (fontsLoaded && (userRole === undefined || typeof userRole === 'number')) {
+      setIsReady(true); // Mark the app as ready only when all data is loaded
+    }
+
+    loadApp().finally(() => {
+      if (isReady) {
         SplashScreen.hideAsync();
       }
     });
-  }, [colorScheme, fontsLoaded]);
+  }, [fontsLoaded, userRole, isReady]);
 
-  if (!fontsLoaded) {
-    console.log("Font not loaded")
+  if (!isReady) {
     return null;
   }
-
-  //     const dispatch = useDispatch();
-
-  //   useEffect(() => {
-  //     // Establish WebSocket connection on mount
-  //     dispatch(connect('ws://your-websocket-url'));
-
-  //     return () => {
-  //         // Clean up WebSocket connection on unmount
-  //         dispatch(disconnect());
-  //     };
-  // }, [dispatch]);
-
-  // const handleSendMessage = () => {
-  //     dispatch(sendMessage({ type: 'TYPE_A', payload: { data: 'example data' } }));
-  // };
-
 
   return (
 
@@ -209,40 +233,7 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <ThemeProvider value={colorScheme === 'light' ? LIGHT_THEME : DARK_THEME}>
             <BottomSheetModalProvider>
-
-
-              <Stack screenOptions={{ headerShown: false }} />
-              {/* <Stack.Screen name="(auth)"
-
-                  // initialParams={{ countryCode: countryCode }}
-                  options={{
-                    headerShadowVisible: false,
-                    headerShown: true,
-                    title: "",
-                    headerLeft: () => (
-                      router.canGoBack() ? (
-                        <Pressable onPress={() => router.back()}>
-                          <Ionicons name="arrow-back" size={24} color="#134071" style={{ marginLeft: 6 }} />
-                        </Pressable>
-                      ) : null
-                    ),
-                  }}
-                /> */}
-              {/* <Slot /> */}
-
-              {/* </Stack> */}
-
-              {/* <Navigation /> */}
-              {/* <Slot /> */}
-
-
-              {/* <Navigation /> */}
-
-
-              {/* </Stack> */}
-
-
-
+              <Slot />
             </BottomSheetModalProvider>
             <Toast />
           </ThemeProvider>

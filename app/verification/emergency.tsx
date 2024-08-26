@@ -12,8 +12,8 @@ import { z } from 'zod';
 import AddContact from '@/components/ui/contacts/addContact';
 import { router } from 'expo-router';
 import Back from '@/components/ui/back';
-
-// import AddContact from './AddContact';
+import { useAuth } from '@/lib/useAuth';
+import { ROLES } from '@/lib/config/enum';
 
 type Friend = z.infer<typeof friendSchema>;
 
@@ -23,6 +23,7 @@ interface EmergencyContactFormData {
 
 const EmergencyContactStep: React.FC = () => {
 
+  const { roles } = useAuth()
   const { control, handleSubmit, watch, formState: { errors }, setValue, getValues } = useForm<EmergencyContactFormData>({
     resolver: zodResolver(emergencySchema),
     defaultValues: {
@@ -37,21 +38,19 @@ const EmergencyContactStep: React.FC = () => {
   const onSubmit = (data: EmergencyContactFormData) => {
     console.log('Selected friends:', data.friends);
 
-    const role: string = "driver"
 
-    if (role === "rider") {
+    if (roles === ROLES.DRIVER) {
       router.push({
-        pathname: "/(verification)/success"
+        pathname: "/verification/success"
 
       })
     } else {
       router.push({
-        pathname: "(verification)/vehicle/data"
-
+        pathname: "/verification/vehicleData"
       })
 
     }
-    // Handle form submission
+
   };
 
   const onError = (errors: any) => {
@@ -78,8 +77,8 @@ const EmergencyContactStep: React.FC = () => {
       <View className='flex-col h-full justify-between'>
         <View className='flex-1 mt-[10%]'>
           <View className='mt-4'>
-            <Back />
-            <Text className='text-[24px] font-semibold text-foreground'>Emergency Contacts</Text>
+            <Back iconType='arrow' iconSize={30} />
+            <Text className='text-[22px] font-semibold text-foreground'>Emergency Contacts</Text>
           </View>
           <Text className='font-medium my-3 text-justify mb-4'>Add your favorite people for trip sharing and safety</Text>
 
@@ -125,14 +124,14 @@ const EmergencyContactStep: React.FC = () => {
           {friends?.length < 2 && (
             <View className='flex-col gap-y-2 mt-4 mb-10 absolute bottom-8 right-2'>
               <Button
-                variant="ghost"
+                variant="default"
                 rounded="full"
-                className='p-2  bg-slate-400/30'
+                className='p-2 shadow-sm'
                 onPress={() => setIsAddContactModalVisible(true)}
               >
                 <View className='flex-row items-center gap-x-3 shadow-md'>
-                  <View className='p-2 rounded-md '>
-                    <UserPlus size={35} className='text-foreground' />
+                  <View className='p-1 rounded-md '>
+                    <UserPlus size={30} className='text-white' />
                   </View>
                 </View>
               </Button>

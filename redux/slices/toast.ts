@@ -5,7 +5,7 @@ import { RootState } from '../store';
 interface ToastState {
     message: string;
     type: 'foreground' | 'background';
-    notification: string
+    notification: "danger" | "warning" | "success" | "info"
     title: string
     isVisible: boolean;
 }

@@ -6,88 +6,213 @@ import { Input } from "@/components/ui/input";
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
 import { Separator } from '@/components/ui/seperator';
 import { ChevronDown, Mail } from "@/lib/icons/icons"
-// import { CountryPicker } from "react-native-country-codes-picker";
 import { useSelector } from 'react-redux';
-import { selectUserInfo } from '@/redux/slices/user';
+import { selectUserInfo, setCountry } from '@/redux/slices/user';
 import PhoneInput from 'react-native-phone-number-input';
 import Back from '@/components/ui/back';
 import { Controller, useForm } from 'react-hook-form';
+import { useColorScheme } from '@/lib/useColorScheme';
+import { useLazyVerifyExistingMobileQuery, useSignInMobileMutation } from '@/redux/api/auth';
+import { COLOR_THEME } from '@/lib/constants';
+import SignInGoogle from './google';
+import axios from 'axios';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from "zod"
+import MobileInput from '@/components/ui/phoneInput';
+import { useWrappedErrorHandling } from '@/lib/useErrorHandling';
+import { toastState } from '@/redux/slices/toast';
+import formatErrorMessage from '@/lib/formatErrorMessages';
+
 
 const Login = () => {
 
+    // const toast = useSelector(toastState)
+    const { appId } = useLocalSearchParams<{ appId: string }>()
+    const { error, handleError, wrapWithHandling } = useWrappedErrorHandling()
+    const [inputFocused, setInputFocused] = useState<string>("")
+    const [canRunExistingAccountCheck, setCanRunExistingAccountCheck] = useState(false)
+    const [countryIdCode, setCountryIdCode] = useState("")
+    const { colorScheme } = useColorScheme()
     const { countryShortCode } = useLocalSearchParams<{ countryShortCode: string }>()
+    const [open, setOpen] = useState(true)
+    // const [signInMobileData, setMobileSignInData] = useState<{ mobile: number, countryCode: number }>()
+    const [skip, setSkip] = useState(true)
+    const phoneInputRef = useRef<PhoneInput | null>(null)
+
     const user = useSelector(selectUserInfo)
 
-    const [open, setOpen] = useState(false)
-    // const [countryCode, setCountryCode] = useState('');
+    const { authType } = useLocalSearchParams<{ authType: string }>()
 
+    const { control, watch, handleSubmit, setError, formState: { errors }, setValue } = useForm({
+        resolver: zodResolver(z.object({
+            mobile: z.string({ message: "Mobile number is required" }) // Error for empty string
+                .regex(/^\d+$/, "Mobile is required and must contain only digits") // Error for non-digit characters
+                .refine((value) => value !== undefined, { message: "Mobile number is required" }), // Error for undefined
 
-    const [inputFocused, setInputFocused] = useState<boolean>(false)
-
-
-
-    // const [value, setValue] = useState('');
-    const [countryCode, setCountryCode] = useState('');
-    const [formattedValue, setFormattedValue] = useState('');
-    const [valid, setValid] = useState(false);
-    const [disabled, setDisabled] = useState(false);
-    const [showMessage, setShowMessage] = useState(false);
-
-    const { control, watch, handleSubmit, formState: { errors }, setValue } = useForm({
+            countryCode: z.string({ message: "Country Code is required" }) // Error for empty string
+                .regex(/^\d+$/, "Country Code is required and must contain only digits") // Error for non-digit characters
+                .refine((value) => value !== undefined, { message: "Country Code is required" }),
+            countryIdCode: z.string().optional()
+        })),
         mode: 'onChange',
         defaultValues: {
             mobile: "",
-            countryCode: 234
+            countryCode: "234",
+            countryIdCode: "NG"
         }
     })
 
-
-    console.log("conncc", countryCode)
-    const { authType } = useLocalSearchParams<{ authType: string }>()
-
-
-    const phoneInputRef = useRef<PhoneInput | null>(null)
-
-    // const handleFocus = (state: boolean) => {
-    //     setInputFocused(state)
-    //     if (state) {
-    //         // phoneInputRef?.current?.focus()
-    //     }
-    // }
-
     const watchedValues = watch()
+    console.log(watchedValues, errors)
 
-    const onSubmit = (value: string) => {
-        console.log(watchedValues)
-        const countryCode = watchedValues?.countryCode
-        const mobile = watchedValues?.mobile
-
-        console.log(countryCode + mobile)
-    }
-
-    useLayoutEffect(() => {
-        phoneInputRef.current?.setState({
-            code: "234",
-            // number: nationalNumber,
-            countryCode: "NG",
-        });
+    useEffect(() => {
+        setSkip(false)
     }, [])
 
     useEffect(() => {
-        setInputFocused(true)
-        // phoneInputRef?.current?.
+
+        if (error) {
+            console.log(error, "Got ther errorors")
+            if (error.type === "ValidationError" && error?.reasons) {
+
+                console.log("Validation Errorr", error)
+                for (const [key, value] of Object.entries(error.reasons)) {
+                    console.log(key, value);
+                    setError(key, {
+                        message: formatErrorMessage(value)
+                    });
+                }
+            }
+
+
+        }
+
+    }, [error])
+
+
+    const [triggerExistingMobileVerify, { data: existingMobileData, error: isExistingMobileError, isLoading: isExistingMobileLoading }] = useLazyVerifyExistingMobileQuery()
+
+    const [dispatchMobileSignIn, { isLoading: isMobileSignInLoading, isError }] = useSignInMobileMutation()
+
+    const [isLoading, setIsLoading] = useState(isExistingMobileLoading || isMobileSignInLoading)
+
+    async function handleLogin(mobile: number, countryCode: number) {
+
+        // console.log(signInMobileData, "NOWWWWW")
+
+        const { data, error } = await triggerExistingMobileVerify({
+            mobile,
+            countryCode
+        })
+
+
+        if (error) {
+            handleError(error)
+            return
+        }
+
+        const { user, mobileVerified } = data?.data
+
+        if (user && mobileVerified) {
+            router.push({
+                pathname: "/otpChannel",
+                params: {
+                    otpMethod: "WhatsApp",
+                    mobile,
+                    countryCode,
+                    user,
+                    type: "login_mobile",
+                    countryIdCode
+                }
+            })
+
+        } else {
+            setCanRunExistingAccountCheck(false)
+            //User does not exist so we can only create the  user with sms otp
+            const response = await dispatchMobileSignIn({
+                mobile,
+                countryCode,
+                otpMode: "SMS"
+            }).unwrap()
+
+            console.log(response, "ARTERSRRSNS911")
+
+            const { otpId, firstName, mobileVerified } = response.data
+
+            router.push({
+                pathname: "/confirmOTP",
+                params: {
+                    otpId,
+                    mobileVerified,
+                    firstName,
+                    otpRoute: "SMS",
+                    type: "login_mobile"
+                    // otpMethod: "mobile"
+
+                }
+            })
+        }
+
+    }
+
+    const handleSubmission = async (countryCode: string, mobile: string) => {
+
+        console.log("Two")
+
+        const number = `${countryCode}${mobile}`
+
+        setCountryIdCode(countryIdCode)
+
+        const checkIsValid = phoneInputRef?.current?.isValidNumber(number)
+
+        if (!checkIsValid) {
+            setError("mobile", {
+                type: "manual",
+                message: "Mobile number is not valid for the selected region."
+            })
+            return
+        }
+
+        setCanRunExistingAccountCheck(true)
+
+
+        await handleLogin(parseInt(mobile), parseInt(countryCode))
+    }
+
+
+
+    const onSubmit = async ({ mobile, countryCode, countryIdCode }) => {
+
+        console.log(typeof mobile, typeof countryCode)
+        const wrappedHandleSubmission = wrapWithHandling(handleSubmission);
+        const response = wrappedHandleSubmission(countryCode, mobile);
+
+    }
+
+
+
+    const handleSignInEmail = () => {
+        console.log("Pushed")
+        router.push({
+            pathname: "/email",
+            params: {
+                type: "login"
+            }
+        })
+    }
+
+    useEffect(() => {
+        setInputFocused("mobileInput")
     }, [])
 
     const handleBlur = () => {
-        setInputFocused(false)
+        setInputFocused("")
 
     }
 
     const handleFocus = () => {
-        setInputFocused(true)
-
+        setInputFocused("mobileInput")
     }
-
 
     return (
         <View className='flex flex-col h-full  p-4'>
@@ -96,234 +221,27 @@ const Login = () => {
                 <Back />
             </View>
 
+
             <View className="mt-[3%] ">
-                <Text variant="heading" className="text-foreground mb-2">{`Welcome ${authType === "driver" ? "driver" : ""} `}</Text>
+                <Text variant="heading" className="text-foreground mb-2">{`Welcome ${appId === "28e99bce1057799ad2f53afa9cbcc8470fc5de293c18c83" ? "driver" : ""} `}</Text>
                 <Text variant="body" className="text-foreground mb-6 font-medium">
                     To sign up or log in, enter your mobile number
                 </Text>
 
+                <MobileInput ref={phoneInputRef} setValue={setValue} control={control} name="mobile" errors={errors} handleFocus={handleFocus} handleBlur={handleBlur} inputFocused={inputFocused} />
 
+                {!!errors["mobile"] && (
+                    <Text className='text-destructive text-sm' >{errors["mobile"]?.message as string}</Text>
+                )}
 
-                {/* <View className={`mb-4 w-full rounded-md  ${inputFocused ? "border-2  border-blue-600" : "border-gray-300"}`} >
-                    <PhoneInput
-                        ref={phoneInputRef}
-                        defaultValue={value}
-                        defaultCode="NG"
-                        layout="first"
-                        placeholder=''
-                        onChangeText={(text) => {
-                            setValue(text);
-                        }}
-                        onChangeFormattedText={(text) => {
-                            setFormattedValue(text);
-                            setCountryCode(phoneInputRef.current?.getCountryCode() || '');
-                        }}
-                        countryPickerProps={{
-                            withFilter: false,
-                            withAlphaFilter: false,
-                            withCallingCode: true,
+                {
+                    !!errors["countryCode"] && (
+                        <Text className='text-destructive text-sm' >{errors["countryCode"]?.message as string}</Text>
+                    )
+                }
 
-
-                            theme: {
-                                fontSize: 16,
-                                primaryColor: "#134071",
-                                primaryColorVariant: "#f1f5f9",
-                                onBackgroundTextColor: '#134071',
-                                fontWeight: "600",
-
-
-                            },
-                            containerButtonStyle: {
-                                padding: 10
-                            },
-
-                            filterProps: {
-                                backgroundColor: "transparent",
-                                borderBottomColor: "#134071",
-                                borderBottomWidth: 2,
-                                padding: 10
-                                // borderRadius: 3,
-
-                                // marginVertical: 3
-                            },
-                            closeButtonImageStyle: {
-                                fontSize: 30,
-                                color: "#2563eb",
-                                marginLeft: "auto"
-                            }
-
-
-                        }}
-                        textInputStyle={{
-                            width: "100%",
-                            color: "#134071",
-                            fontWeight: "600"
-                        }}
-                        containerStyle={{
-                            backgroundColor: 'transparent',
-                            width: "100%"
-                        }}
-                        countryPickerButtonStyle={{
-                            backgroundColor: "transparent",
-                            // width: "100%"
-                        }}
-                        flagButtonStyle={{
-                            backgroundColor: "transparent",
-                            // width: "100%"
-                            borderRightWidth: 1,
-                            borderColor: '#f1f4f5'
-
-                        }}
-                        textInputProps={{
-                            inputMode: "numeric",
-                            defaultValue: "",
-                            onFocus: { handleFocus },
-                            onBlur: { handleBlur }
-                            // onBlur ={() => setInputFocused(false)}
-                        }}
-                        codeTextStyle={{
-                            color: "#134071",
-                            fontWeight: "600"
-                        }}
-
-
-
-                        textContainerStyle={{
-                            backgroundColor: "transparent",
-                            width: "90%"
-                        }}
-                        disabled={disabled}
-                        // withDarkTheme
-                        withShadow={false}
-                        autoFocus
-                    />
-
-                </View> */}
-
-                <Controller
-                    control={control}
-                    name="mobile"
-                    render={({ field: { onChange, value } }) => (
-                        <PhoneInput
-                            ref={phoneInputRef}
-                            defaultValue={value?.toString()}
-                            value={value?.toString()}
-                            placeholder=' '
-                            // defaultCode={defaultCode}
-                            layout="first"
-
-                            onChangeText={(text: string) => {
-                                onChange(text)
-                            }}
-                            onChangeFormattedText={(text: string) => {
-                                console.log(text, phoneInputRef?.current?.getCallingCode())
-                                const callingCode = phoneInputRef.current?.getCallingCode()
-                                if (callingCode) {
-                                    setValue('countryCode', parseInt(callingCode))
-                                }
-                            }}
-                            countryPickerProps={{
-                                withFilter: false,
-                                withAlphaFilter: false,
-                                withCallingCode: true,
-
-
-                                theme: {
-                                    fontSize: 16,
-                                    primaryColor: "#134071",
-                                    primaryColorVariant: "#f1f5f9",
-                                    onBackgroundTextColor: '#134071',
-                                    fontWeight: "600",
-
-
-                                },
-                                containerButtonStyle: {
-                                    // padding: 10
-                                },
-
-                                filterProps: {
-                                    backgroundColor: "transparent",
-                                    borderBottomColor: "#134071",
-                                    borderBottomWidth: 2,
-                                    padding: 10
-                                    // borderRadius: 3,
-
-                                    // marginVertical: 3
-                                },
-                                closeButtonImageStyle: {
-                                    fontSize: 30,
-                                    color: "#2563eb",
-                                    marginLeft: "auto"
-                                }
-
-
-                            }}
-
-                            textInputStyle={{
-                                width: "100%",
-                                color: "#134071",
-                                fontWeight: "600",
-                                // backgroundColor: "#f5f5f5",
-                                // borderWidth: 1
-
-                            }}
-
-                            // placeholderTextColor="pink"
-                            containerStyle={{
-
-                                width: "100%"
-
-
-                            }}
-                            countryPickerButtonStyle={{
-                                backgroundColor: "transparent",
-                                // width: "100%"
-                            }}
-                            flagButtonStyle={{
-                                backgroundColor: "transparent",
-                                // width: "100%"
-                                // borderRightWidth: 1,
-                                // borderColor: '#f1f4f5'
-
-                            }}
-                            textInputProps={{
-                                inputMode: "numeric",
-                                // placeholderTextColor: '#134071',
-                                value: value,
-                                autoFocus: true,
-                                cursorColor: "#FACC15",
-                                onBlur: handleBlur,
-                                onFocus: handleFocus
-                                // style: {
-                                //     borderWidth: 1
-                                // }
-                                // borderRadius: 8
-                            }}
-                            codeTextStyle={{
-                                color: "#134071",
-                                fontWeight: "600"
-                            }}
-
-                            textContainerStyle={{
-                                backgroundColor: "#fffff6",
-                                borderColor: errors.mobile?.message || errors.countryCode?.message ? "red" : inputFocused ? "#facc15" : "#fffff6",
-                                borderRadius: 8,
-                                borderWidth: 2,
-                                paddingVertical: 14,
-                                // height: "50%",
-
-                                width: "100%"
-                            }}
-                            // disabled={disabled}
-                            // withDarkTheme
-                            withShadow={false}
-
-                        />
-                    )}
-                />
-
-                <Button variant="default" size={"lg"} rounded={"base"} className="my-4 flex items-center justify-center" onPress={onSubmit}>
-                    <Text variant={"subhead"} color={"secondary"} className='text-white font-semibold '>  Continue</Text>
+                <Button variant="default" size={"lg"} rounded={"base"} disabled={isLoading} className="mb-4 mt-3 flex items-center justify-center" onPress={handleSubmit(onSubmit)}>
+                    <Text variant={"subhead"} color={"light"} className='font-semibold '> Continue</Text>
                 </Button>
 
                 <View className='flex flex-row items-center justify-center max-w-full '>
@@ -331,29 +249,30 @@ const Login = () => {
                         <Separator className='bg-slate-200' />
                     </View>
                     <View className='flex flex-row justify-center items-center px-4'>
-                        <Text variant="body" className="text-center mt-0 font-medium">or </Text>
+                        <Text variant="body" className="text-center mt-0 font-medium text-foreground">or </Text>
                     </View>
                     <View className='flex-1'>
                         <Separator className='bg-slate-200' />
                     </View>
                 </View>
 
-                <Button variant="ghost" size={"lg"} rounded={"base"} className="mb-2 flex-row justify-start flex items-center my-3 bg-accent" >
-                    <Image
-                        source={require("../../assets/images/google.png")}
-                        className="w-6 h-6 mr-1"
-                    />
-                    <Text className='font-medium flex-1 text-center' variant={"callout"}>Continue with Google</Text>
-                </Button>
+                <SignInGoogle />
 
+                <Button variant="ghost" size={"lg"} rounded={"base"} className="mb-2 flex-row justify-start flex items-center bg-accent"
+                    //  onPress={handleSignInEmail}
+                    onPress={() => {
+                        router.push({
+                            pathname: "(auth)/confirmOTP",
 
-                <Button variant="ghost" size={"lg"} rounded={"base"} className="mb-2 flex-row justify-start flex items-center bg-accent" >
+                        })
+                    }}
+                >
                     <Mail size={24} className='text-foreground' />
-                    <Text className='font-medium flex-1 text-center' variant={"callout"}>Continue with Email</Text>
+                    <Text className='font-medium flex-1 text-center text-foreground ' variant={"footnote"} >Continue with Email</Text>
                 </Button>
 
-                <Text variant="footnote" className="mt-4 text-justify font-medium">
-                    By signing up, you agree to our <Text variant="footnote" className="text-accent font-medium">Terms of Service</Text> and <Text variant="footnote" className="text-accent font-medium">Privacy Policy. </Text>
+                <Text variant="footnote" className="mt-4 text-justify font-medium text-foreground">
+                    By signing up, you agree to our <Text variant="footnote" className="text-foreground font-medium">Terms of Service</Text> and <Text variant="footnote" className="text-foreground font-medium">Privacy Policy. </Text>
                     Please read our privacy policy to learn how we use your personal data.
                 </Text>
             </View>

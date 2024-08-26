@@ -41,12 +41,12 @@ const AvatarStep = () => {
 
             <View className='flex-1 mt-[10%]'>
                 <View>
-                    <Back />
+                    <Back iconSize={32} />
                     <Text className='text-[22px] font-semibold text-center'>Photo Verification </Text>
                 </View>
                 <View className=' flex items-center justify-center text-justify'>
-                    <Text className='font-medium text-center w-[60%] mt-10'>Add a profile photo so other users can recognize you.</Text>
-                    {/* <Text className='text-primary text-center'>Who can see my profile photo ?</Text> */}
+                    <Text className='font-medium text-center w-[60%] mt-4'>Add a profile photo so other users can recognize you.</Text>
+                    <Text className='text-primary text-center'>Who can see my profile photo ?</Text>
                 </View>
 
                 <View className=' pt-6 flex-col justify-start items-center '>
@@ -103,12 +103,12 @@ const AvatarStep = () => {
                             disabled={!!image}
                             variant={"ghost"}
                             onPress={handleCapturePhoto}
-                            className=" bg-red-500 rounded-full pb-10 h-20 w-20  border-8 border-gray-300 mb-4"
+                            className=" bg-primary rounded-full pb-10 h-20 w-20  border-8 border-gray-300 mb-4"
                         >
                         </Button>
 
                     </View> : <Button onPress={() => router.push({
-                        pathname: "(verification)/personalInfo"
+                        pathname: "/verification/personalInfo"
                     })} variant={"default"} size={"lg"} rounded="base"
 
                         disabled={!!image && !!errors?.avatar || !image} className='flex-row w-full items-center justify-center'>

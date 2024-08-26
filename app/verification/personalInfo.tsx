@@ -106,8 +106,8 @@ const PersonalInfoStep = () => {
         <View className='flex-col justify-between h-full px-6 '>
             <View className='  flex-1 mt-[10%]'>
                 <View>
-                    <Back />
-                    <Text className='text-[22px] font-semibold text-center pb-4'>Personal Information </Text>
+                    <Back iconType='arrow' iconSize={30} />
+                    <Text className='text-[22px] font-semibold text-left pb-4'>Personal Information </Text>
                 </View>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {inputList.map((inputData, index) => (
@@ -127,7 +127,7 @@ const PersonalInfoStep = () => {
             </View>
             <View className='py-4'>
                 <Button onPress={() => router.push({
-                    pathname: "(verification)/identity"
+                    pathname: "/verification/identity"
                 })} variant={"default"} size={"lg"} rounded="base"
                     className=' items-center justify-center'>
                     <Text variant={"smallTitle"} className=' font-semibold'>Next</Text>
