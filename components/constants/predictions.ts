@@ -75,7 +75,7 @@ export const predictions: Prediction[] = [{
 
 export const locations: Location[] = [
     {
-        placeId: "ChIJQA7mnpNawokRE3Yh9wZLq2o",
+        _id: "ChIJQA7mnpNawokRE3Yh9wZLq2o",
         name: "New York, NY, USA",
         town: "New York",
         state: "New York",
@@ -83,7 +83,7 @@ export const locations: Location[] = [
         coordinates: [40.712776, -74.005974]
     },
     {
-        placeId: "ChIJE9on3F3HwoAR9AhGJW_fL-I",
+        _id: "ChIJE9on3F3HwoAR9AhGJW_fL-I",
         name: "Los Angeles, CA, USA",
         town: "Los Angeles",
         state: "California",
@@ -91,7 +91,7 @@ export const locations: Location[] = [
         coordinates: [34.052235, -118.243683]
     },
     {
-        placeId: "ChIJdd4hrwug2EcRmSrV3Vo6llI",
+        _id: "ChIJdd4hrwug2EcRmSrV3Vo6llI",
         name: "London, UK",
         town: "London",
         state: "England",
@@ -99,7 +99,7 @@ export const locations: Location[] = [
         coordinates: [51.507351, -0.127758]
     },
     {
-        placeId: "ChIJD7fiBh9u5kcRYJSMaMOCCwQ",
+        _id: "ChIJD7fiBh9u5kcRYJSMaMOCCwQ",
         name: "Paris, France",
         town: "Paris",
         state: "Île-de-France",
@@ -107,7 +107,7 @@ export const locations: Location[] = [
         coordinates: [48.856613, 2.352222]
     },
     {
-        placeId: "ChIJ51cu8IcbXWARiRtXIothAS4",
+        _id: "ChIJ51cu8IcbXWARiRtXIothAS4",
         name: "Tokyo, Japan",
         town: "Tokyo",
         state: "Tokyo",
@@ -115,7 +115,7 @@ export const locations: Location[] = [
         coordinates: [35.689487, 139.691711]
     },
     {
-        placeId: "ChIJP3Sa8ziYEmsRUKgyFmh9AQM",
+        _id: "ChIJP3Sa8ziYEmsRUKgyFmh9AQM",
         name: "Sydney, Australia",
         town: "Sydney",
         state: "New South Wales",
@@ -123,7 +123,7 @@ export const locations: Location[] = [
         coordinates: [-33.868820, 151.209290]
     },
     {
-        placeId: "ChIJAVkDPzdOqEcRcDteW0YgIQQ",
+        _id: "ChIJAVkDPzdOqEcRcDteW0YgIQQ",
         name: "Berlin, Germany",
         town: "Berlin",
         state: "Berlin",
@@ -131,7 +131,7 @@ export const locations: Location[] = [
         coordinates: [52.520008, 13.404954]
     },
     {
-        placeId: "ChIJybDUc_xKtUYRTM9XV8zWRD0",
+        _id: "ChIJybDUc_xKtUYRTM9XV8zWRD0",
         name: "Moscow, Russia",
         town: "Moscow",
         state: "Moscow",
@@ -139,7 +139,7 @@ export const locations: Location[] = [
         coordinates: [55.755825, 37.617298]
     },
     {
-        placeId: "ChIJLbZ-NFv9DDkRzk0gTkm3wlI",
+        _id: "ChIJLbZ-NFv9DDkRzk0gTkm3wlI",
         name: "New Delhi, India",
         town: "New Delhi",
         state: "Delhi",
@@ -147,7 +147,7 @@ export const locations: Location[] = [
         coordinates: [28.613939, 77.209021]
     },
     {
-        placeId: "ChIJ1QHgVu9ZzpQRgqHcn9zz28M",
+        _id: "ChIJ1QHgVu9ZzpQRgqHcn9zz28M",
         name: "São Paulo, Brazil",
         town: "São Paulo",
         state: "São Paulo",

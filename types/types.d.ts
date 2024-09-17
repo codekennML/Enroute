@@ -1,15 +1,23 @@
 import { LucideIcon } from 'lucide-react-native'
 
+type FieldOptions = {
+  type: 'text' | 'number' | 'select' | 'image' | 'date';
+  schemaType: 'string' | 'number' | 'date';
+  required: boolean
+  options?: string[]; // For select fields
+};
 
-interface Location {
-  coordinates: [number, number]
-  placeId: string
-  name: string
-  town?: string,
-  state?: string,
-  country?: string
+// Define a type for schema definition
+type SchemaDefinition = {
+  id: string | number;
+  name: string;
+  info?: string
+  displayName: string;
+  placeholder?: string;
+  options: FieldOptions;
+};
 
-}
+
 
 interface SearchProps {
   title: string,
@@ -31,25 +39,43 @@ export interface RiderData {
   added?: boolean
 }
 
+interface Location {
+  coordinates: [number, number]
+  placeId?: string
+  _id?: string
+  name: string
+  town?: {
+    _id?: string,
+    name: string
+  },
+  state?: {
+    _id?: string,
+    name: string
+  },
+  country?: {
+    _id?: string,
+    name: string
+  }
+  distance?: number
+}
+
 export interface UserPackageInfo {
-  rideId?: string
+  rideId: string
   recipient?: RiderData
-  origin?: Location,
+  origin: Location,
   destination?: Location,
   comments: string
   description: string
-  when?: string //stringified Date
-  express?: boolean
+  when: string //stringified Date
+  express: boolean
   budget: number
   type: string
 }
 
 export interface UserRideInfo {
-  recipient: never[]
   rideId?: string
   budget: number,
-  busStopName: string
-  scheduledPickupLocation?: string //This is for the pickup location of the scheduled rides originating from the schedule page 
+  // scheduledPickupLocation?: string //This is for the pickup location of the scheduled rides originating from the schedule page 
   riders: RiderData[],
   origin?: Location,
   destination?: Location,
@@ -61,7 +87,8 @@ export interface UserRideInfo {
 }
 
 export type UserInfo = {
-  country?: Omit<Location, "placeId" | "town" | "state" | "country"> & { short_name?: string, currency: string },
+  currentLocation?: Location
+  country?: Omit<Location, "placeId" | "town" | "state" | "country"> & { iso_code?: string, currency: string, _id: string, calling_code: string },
   state?: Omit<Location, "placeId" | "town" | "state" | "country">
   firstName?: string
   lastName?: string

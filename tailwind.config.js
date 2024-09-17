@@ -6,11 +6,6 @@ module.exports = {
     content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
     presets: [require('nativewind/preset')],
     theme: {
-        fontFamily: {
-
-
-        },
-
         extend: {
             colors: {
                 border: 'hsl(var(--border))',

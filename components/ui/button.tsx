@@ -14,7 +14,7 @@ const buttonVariants = cva(
                 outline:
                     'border border-input bg-background web:hover:bg-accent web:hover:text-accent-foreground active:bg-accent',
                 secondary: 'bg-secondary web:hover:opacity-80 active:opacity-80',
-                ghost: 'web:hover:bg-accent web:hover:text-accent-foreground active:bg-accent',
+                ghost: 'web:hover:bg-accent web:hover:text-accent-foreground',
                 link: 'web:underline-offset-4 web:hover:underline web:focus:underline ',
 
             },
@@ -48,14 +48,14 @@ const buttonTextVariants = cva(
                 destructive: 'text-destructive-foreground',
                 outline: 'group-active:text-accent-foreground',
                 secondary: 'text-secondary-foreground group-active:text-secondary-foreground',
-                ghost: 'group-active:text-accent-foreground',
+                ghost: '',
                 link: 'text-primary group-active:underline',
             },
             size: {
                 default: '',
                 sm: '',
                 badge: '',
-                lg: 'native:text-lg',
+                lg: 'native:text-[17px] text-[17px]',
                 icon: '',
             },
         },

@@ -1,3 +1,4 @@
+import { COLOR_THEME } from '@/lib/constants';
 import React, { useRef, useEffect, useState } from 'react';
 import { View, StyleSheet, Animated, Easing, Button, Dimensions } from 'react-native';
 
@@ -36,7 +37,7 @@ const HorizontalLoader = ({ onDismiss }) => {
     return (
         <View style={styles.loaderContainer}>
             <Animated.View style={[styles.loader, { transform: [{ translateX }] }]} />
-            {/* <Button title="Dismiss" onPress={onDismiss} /> */}
+
         </View>
     );
 };
@@ -44,18 +45,18 @@ const HorizontalLoader = ({ onDismiss }) => {
 const styles = StyleSheet.create({
     loaderContainer: {
         justifyContent: 'flex-start',
-        // alignItems: 'center',
-        height: 5,
+
+        height: 3,
         width: "100%",
-        backgroundColor: "light-blue",
+        backgroundColor: COLOR_THEME.light.accent,
         // borderBottomWidth: 1
     },
     loader: {
         width: 15,
-        // height: 5,
+
         borderBottomWidth: 2,
-        borderColor: "#007AFF",
-        backgroundColor: '#007AFF',
+        borderColor: COLOR_THEME.light.primary,
+        backgroundColor: COLOR_THEME.light.primary,
     },
 });
 

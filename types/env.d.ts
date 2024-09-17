@@ -5,4 +5,7 @@ declare module '@env' {
     export const RIDER_ROLE: number
     export const DRIVER_APP_ID: string
     export const RIDER_APP_ID: string
+    export const MAPBOX_TOKEN: string
+    export const R2_ACCOUNT_ID: string
+
 }

@@ -80,7 +80,7 @@ const EmergencyContactStep: React.FC = () => {
             <Back iconType='arrow' iconSize={30} />
             <Text className='text-[22px] font-semibold text-foreground'>Emergency Contacts</Text>
           </View>
-          <Text className='font-medium my-3 text-justify mb-4'>Add your favorite people for trip sharing and safety</Text>
+          <Text className='font-medium my-3 text-justify mb-4'>Add your favorite person for trip sharing and safety</Text>
 
           <Controller
             name="friends"
@@ -121,7 +121,7 @@ const EmergencyContactStep: React.FC = () => {
             </View>
           )}
 
-          {friends?.length < 2 && (
+          {/* {friends?.length < 2 && (
             <View className='flex-col gap-y-2 mt-4 mb-10 absolute bottom-8 right-2'>
               <Button
                 variant="default"
@@ -136,7 +136,7 @@ const EmergencyContactStep: React.FC = () => {
                 </View>
               </Button>
             </View>
-          )}
+          )} */}
         </View>
 
         <View className='py-3'>
@@ -144,7 +144,8 @@ const EmergencyContactStep: React.FC = () => {
             size={"lg"}
             rounded={"base"}
             className={`flex-row items-center justify-center ${friends?.length > 0 ? "bg-primary" : "bg-gray-200"} `}
-            onPress={handleSubmit(onSubmit, onError)}
+            onPress={() => router.push("/verification/processing")}
+          // onPress={handleSubmit(onSubmit, onError)}
           >
             <Text className='smallTitle font-semibold'>Continue</Text>
           </Button>
@@ -159,7 +160,7 @@ const EmergencyContactStep: React.FC = () => {
       >
         <View style={{
           flex: 1,
-          // justifyContent: 'center'
+          // justifyContent+: 'center'
           //   , 
           alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'
         }}>
@@ -167,7 +168,7 @@ const EmergencyContactStep: React.FC = () => {
             backgroundColor: 'white', paddingHorizontal: 20, paddingTop: 10
             , borderRadius: 0, width: '100%', height: "100%"
           }}>
-            <AddContact onAddContact={handleAddContact} openModal={setIsAddContactModalVisible} title={"Add riders"} />
+            <AddContact onAddContact={handleAddContact} openModal={setIsAddContactModalVisible} title={"Add Emergency contact"} />
 
           </View>
         </View>

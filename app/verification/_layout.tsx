@@ -33,10 +33,14 @@
 
 import { ProtectedStack } from '@/components/ui/auth/protected';
 import { ROLES } from '@/lib/config/enum';
+import useLocation from '@/lib/useLocation';
 import { Slot, Stack } from 'expo-router';
 import React from 'react';
 
 function VerificationLayout() {
+
+
+
     return (
         <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="documents" />

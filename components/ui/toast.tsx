@@ -36,7 +36,7 @@ const Toast: React.FC = () => {
                             type={type}
                             open={isVisible}
                             onOpenChange={(open) => !open && dispatch(hideToast())}
-                            className={`bg-accent border-border flex-row justify-between items-center p-4 rounded-md ${notification === "danger" ? "bg-destructive-foreground" : "bg-accent"}`}
+                            className={`border-border flex-row justify-between items-center p-4 rounded-md ${notification === "danger" ? "bg-destructive" : "bg-accent"}`}
                         >
                             <View className='gap-1.5'>
                                 {/* <ToastPrimitive.Title className='text-foreground text-sm'>{title}</ToastPrimitive.Title> */}
@@ -44,12 +44,12 @@ const Toast: React.FC = () => {
                                     <View className='flex flex-row gap-x-2 items-center max-w-[80%] overflow'>
                                         <View>
 
-                                            <Info size={18} className={`${notification === "danger" ? "text-white" : notification === "success" ? "text-green-600" : notification === "warning" ? "text-amber-500" : "text-foreground"} `} />
+                                            <Info size={18} className={`${notification === "danger" ? "text-white" : "text-destructive"} `} />
 
                                         </View>
                                         <View className='max-w-[75%]'>
 
-                                            <Text variant={"body"} className={`${notification === "danger" ? "text-white" : notification === "success" ? "text-green-600" : notification === "warning" ? "text-amber-500" : "text-foreground"} `}>{message}</Text>
+                                            <Text variant={"body"} className={`${notification === "danger" ? "text-white" : "text-destructive font-medium"} `}>{message}</Text>
 
                                         </View>
                                     </View>

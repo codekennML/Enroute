@@ -21,6 +21,7 @@ import { selectUserInfo } from '@/redux/slices/user'
 import { Location } from '@/types/types'
 import { StationList } from './stationList'
 import { TextInput } from 'react-native-gesture-handler'
+import { COLOR_THEME } from '@/lib/constants'
 
 const ScheduleFilters = () => {
 
@@ -113,6 +114,7 @@ const ScheduleFilters = () => {
     const handleDestinationSelection = (destination: Location) => {
         setValue("destinationName", destination.name)
         setValue("destinationBodyWithName", destination)
+        dropDownRef.current?.close()
 
     }
 
@@ -132,7 +134,7 @@ const ScheduleFilters = () => {
 
                 <Controller name="type" control={control} render={({ field: { onChange, value } }) => {
 
-                    return (<RadioGroup value={value} onValueChange={onChange} className='border rounded-lg border-slate-200 p-3 gap-2 bg-accent'>
+                    return (<RadioGroup value={value} onValueChange={onChange} className='border rounded-lg border-slate-200 p-3 gap-2 '>
                         <View className='flex flex-row justify-between '>
 
                             <View className='flex flex-row items-center gap-x-3'>
@@ -167,7 +169,7 @@ const ScheduleFilters = () => {
                             placeholder={value ? value : watchedValues?.type === "Travel" ? "Search a  state" : "Search a city"}
 
                             value={value} onChangeText={onChange}
-                            className={`${focusedInput === "destination" ? "border-blue-600" : ""} bg-accent h-14 py-3 placeholder:text-foreground px-4 placeholder:text-sm placeholder:font-medium text-xs `} />
+                            className={`${focusedInput === "destination" ? "border-primary dark:border-primary" : ""}  h-12 py-3 placeholder:text-foreground px-4 placeholder:text-sm placeholder:font-medium text-xs `} />
                     </View>
                 )} />
             </View>
@@ -210,9 +212,9 @@ const ScheduleFilters = () => {
                         step={1}
                         onValueChange={onChange}
                         value={value}
-                        minimumTrackTintColor={"#134071"}
-                        maximumTrackTintColor={"#134071"}
-                        thumbTintColor={"#134071"}
+                        minimumTrackTintColor={COLOR_THEME.light.primary}
+                        maximumTrackTintColor={COLOR_THEME.light.primary}
+                        thumbTintColor={COLOR_THEME.light.primary}
                     />
 
                 )} />
@@ -236,9 +238,8 @@ const ScheduleFilters = () => {
                         maximumValue={25}
                         value={value}
                         onValueChange={onChange}
-                        // minimumTrackTintColor={"red"}
-                        // maximumTrackTintColor={"red"}
-                        thumbTintColor="blue"
+
+                        thumbTintColor={COLOR_THEME.light.primary}
                         // minimumTrackTintColor="#FFFFFF"
                         maximumTrackTintColor="#000000"
 
@@ -257,7 +258,7 @@ const ScheduleFilters = () => {
 
             <View className='flex-row items-center justify-between mt-3'>
                 <Text variant="subhead" className='py-3 font-semibold'>Charter</Text>
-                <Toggle trackColor={{ false: '#EEEEEE', true: '#F4F4F5' }} thumbColor={"#007AFF"} onValueChange={toggleSwitch}
+                <Toggle trackColor={{ false: '#EEEEEE', true: '#F4F4F5' }} thumbColor={COLOR_THEME.light.primary} onValueChange={toggleSwitch}
                     value={isEnabled} />
             </View>
 
@@ -271,7 +272,7 @@ const ScheduleFilters = () => {
                         <Text className='text-center py-3 font-medium' variant="body">Cancel</Text>
                     </Button>
                     <Button variant="default" rounded="base" className=" mt-5 flex-1">
-                        <Text variant={"body"} color={"light"} className=' text-white text-center py-3 font-medium'>Apply</Text>
+                        <Text variant={"body"} color={"light"} className=' text-white : dark:text-white text-center py-3 font-medium'>Apply</Text>
                     </Button>
                 </View >
             </View>

@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f4cd52"
+      "backgroundColor": "#fff"
     },
     "ios": {
       "supportsTablet": true,
@@ -20,7 +20,7 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#f4cd52"
+        "backgroundColor": "#fff"
       },
       "package": "com.app.enroute",
       "permissions": [

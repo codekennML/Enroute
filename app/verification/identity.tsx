@@ -1,7 +1,7 @@
 import { ScrollView, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Text } from "@/components/ui/text"
-import { useForm, } from "react-hook-form"
+import { Controller, FieldValue, FieldValues, useForm, } from "react-hook-form"
 
 import { DynamicField } from './multistep'
 import Back from '@/components/ui/back'
@@ -9,161 +9,272 @@ import { Button } from '@/components/ui/button'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import DynamicFieldComponent from '@/components/ui/dynamicField'
 import { router } from 'expo-router'
-
-
-const dynamicFields: DynamicField[] = [
-    {
-        id: 1,
-        name: "id_type",
-        displayName: "ID document",
-        options: {
-            type: "select",
-            options: [
-                "National ID Card",
-                "International Passport"
-            ],
-            schemaType: "string"
-        }
-    },
-
-    {
-        id: 2,
-        name: "id_number",
-        displayName: "Identification Number",
-        options: {
-            type: "number",
-
-            schemaType: "string"
-        },
-    },
-
-    {
-        id: 5,
-        name: "id_issued_at",
-        displayName: "Issue date",
-        options: {
-            type: "date",
-
-            schemaType: "string"
-        },
-    },
-
-    {
-        id: 6,
-        name: "id_expires_at",
-        displayName: "Expiry date",
-        options: {
-            type: "date",
-
-            schemaType: "string"
-        },
-    },
-    {
-        id: 3,
-        name: "id_image_back",
-        displayName: "Identification Image - Back",
-        options: {
-            type: "image",
-
-            schemaType: "string"
-        },
-    },
-
-    {
-        id: 4,
-        name: "id_image_back",
-        displayName: "Identification Image - Front",
-        options: {
-            type: "image",
-            schemaType: "string"
-        }
-    },
+import { useGetCountriesQuery } from '@/redux/api/country'
+import { useGetStateRequiredDocsQuery, useGetStatesQuery } from '@/redux/api/states'
+import DynamicSelect from '@/components/ui/select/dynamic'
+import * as z from "zod"
+import { useSelector } from 'react-redux'
+import { selectVerificationInfo } from '@/redux/slices/verification'
+import { useAuth } from '@/lib/useAuth'
+import { ROLES } from '@/lib/config/enum'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { createDatePairValidationSchema, dateSchema, ageSchema, createImageSchema } from './schemas'
+import { canProceed } from '@/lib/canProceed'
+import { selectVerificationFields } from '@/redux/slices/verifyfields'
+import { SchemaDefinition } from '@/types/types'
+import { processDates } from '@/lib/processDates'
+import { getDateFieldPairs } from '@/lib/createDatePairs'
 
 
 
-]
 
+const IdentityVerificationStep: React.FC<{ dynamicFields: DynamicField[], validationSchema: z.ZodSchema }> = ({ dynamicFields, validationSchema }) => {
 
-
-const IdentityVerificationStep: React.FC<{ dynamicFields: DynamicField[] }> = ({ dynamicFields }) => {
-
-    //    const [schema, setSchema ] = useState()
-
-    // const schema = useCallback(() => {
-
-    //     let schemaSheet = {}
-
-    //     const schema = dynamicFields.map(field=> {
-    //         schemaSheet[]
-    //     })
-
-    // },[])
-
-
-    const { control, watch, formState: { errors } } = useForm({
-
+    const { handleSubmit, control, watch, formState: { errors }, setError, setValue, clearErrors } = useForm({
+        resolver: zodResolver(validationSchema),
+        mode: "onChange",
+        defaultValues: dynamicFields.reduce((acc, field) => {
+            acc[field.name] = ''; // Default empty value for each field
+            return acc;
+        }, {})
     })
 
-    const [valuesComplete, setValuesComplete] = useState(false)
+    const watchedValues = watch()
 
-    const hasErrors = Object.keys(errors).length > 0;
-    // Watch all the values in the form
-    const watchedValues = watch();
-
-    // Check if all required fields have values
+    const dateFieldPairs = getDateFieldPairs(dynamicFields)
 
 
-    // useEffect(() => {
+    useEffect(() => {
+        if (!watchedValues) return; // Ensure watchedValues exist before proceeding
 
-    //     console.log(allFieldsFilled)
-    //     if (allFieldsFilled) setValuesComplete(true)
-    // }, [watchedValues])
+        processDates(watchedValues, dateFieldPairs, setError, errors)
 
-    const allFieldsFilled = Object.values(watchedValues).every(Boolean);
-    console.log(watchedValues)
+        // Loop through each pair of issue and expiry date field
+    }, [watchedValues, setError, dateFieldPairs]);
 
-    const handleSubmitDocuments = () => {
+
+    const isValidFormData = canProceed(errors, watchedValues, dynamicFields)
+    const handleSubmitDocuments = (data: FieldValues) => {
+
+
         router.push({
-            pathname: "/verification/emergency"
+            pathname: "/verification/vehicleData"
         })
     }
 
-    return (
-        <SafeAreaView>
-            <View className="px-6  h-full justify-between ">
-                <View className='flex-1'>
-                    <View className='mt-4'>
-                        <Back iconType='arrow' iconSize={30} />
-                        <Text className='text-[22px] font-semibold text-foreground pb-5 '>Your Documents </Text>
-                    </View>
-                    <ScrollView scrollEnabled={true} horizontal={false} showsVerticalScrollIndicator={false}>
-                        <View className='flex flex-col gap-y-3'>
+    const onError = (data: FieldValues) => {
+        console.log(data, "Error Data")
+    }
 
-                            {dynamicFields.map((field) => (
-                                <DynamicFieldComponent
-                                    key={field.id}
-                                    field={field}
-                                    control={control}
-                                    errors={errors}
-                                />
-                            ))}
-                        </View>
-                    </ScrollView>
+
+
+    return (
+        // <SafeAreaView>
+        <View className="px-6  h-full justify-between ">
+            <View className='flex-1'>
+                <View className='mt-2'>
+                    <Back iconType='arrow' iconSize={24} />
+                    <Text className='text-[24px] font-semibold text-foreground pb-5 mt-4 '>Your Documents </Text>
                 </View>
-                <View className=' bg-white w-full pb-4'>
-                    <Button size={"lg"} rounded="base" className='flex-row items-center justify-center' variant={"default"} disabled={hasErrors || !!allFieldsFilled} onPress={handleSubmitDocuments}>
-                        <Text variant={"smallTitle"} className='font-semibold'>Continue</Text>
-                    </Button>
-                </View>
+                <ScrollView scrollEnabled={true} horizontal={false} showsVerticalScrollIndicator={false}>
+                    <View className='flex flex-col gap-y-3'>
+
+                        {dynamicFields.map((field) => (
+                            <DynamicFieldComponent
+                                key={field.name}
+                                field={field}
+                                control={control}
+                                errors={errors}
+                                setError={setError}
+                                clearErrors={clearErrors}
+                                setValue={setValue}
+                            />
+                        ))}
+                    </View>
+                    <View className=' bg-white w-full pb-4'>
+                        <Button size={"lg"} rounded="base" className='flex-row items-center justify-center' variant={"default"}
+                            onPress={() => router.push("/verification/vehicleData")}
+                        // disabled={!isValidFormData} 
+                        // onPress={handleSubmit(handleSubmitDocuments)}
+                        >
+                            <Text variant={"smallTitle"} className='font-semibold dark:text-white text-white'>Continue</Text>
+                        </Button>
+                    </View>
+                </ScrollView>
             </View>
-        </SafeAreaView>
+
+        </View>
+        // </SafeAreaView>
     );
 }
 
+
+
+
+export const createDynamicSchema = (fields: SchemaDefinition[]) => {
+
+
+
+    const shape: Record<string, z.ZodTypeAny> = {};
+    // const dateFieldPairs = getDateFieldPairs(fields);
+
+    fields.forEach((field) => {
+        switch (field.options.schemaType) {
+            case 'string':
+                if (field.options.type === 'image') {
+                    shape[field.name] = z.string()
+                } else if (field.options.type === 'date') {
+                    shape[field.name] = dateSchema
+
+                } else {
+                    shape[field.name] = z
+                        .string({
+                            required_error: `A valid ${field.displayName.toLowerCase()} is required`,
+                        })
+                        .min(2, `Please enter a valid ${field.displayName.toLowerCase()}`);
+                }
+                break;
+            case 'number':
+                shape[field.name] = z.number({
+                    required_error: `A valid ${field.displayName.toLowerCase()} is required`,
+                });
+                break;
+            case 'date':
+                shape[field.name] = dateSchema;
+                break;
+            default:
+                shape[field.name] = z.unknown();
+        }
+    });
+
+    const schema = z.object(shape)
+
+    // .passthrough().superRefine((data, ctx) => {
+    //     console.log('Date validation function called with data:', data);
+
+    //     for (const { issue, expiry } of dateFieldPairs) {
+    //         const issueDateStr = data[issue];
+    //         const expiryDateStr = data[expiry];
+
+    //         console.log(`Processing pair: ${issue} (${issueDateStr}) and ${expiry} (${expiryDateStr})`);
+
+    //         if (!issueDateStr || !expiryDateStr) {
+    //             console.log('Missing date value(s)');
+    //             ctx.addIssue({
+    //                 code: z.ZodIssueCode.custom,
+    //                 message: `Both ${issue} and ${expiry} must be provided`,
+    //                 path: [issue, expiry],
+    //             });
+    //             continue;
+    //         }
+
+    //         const issueDate = parse(issueDateStr, 'dd/MM/yyyy', new Date());
+    //         const expiryDate = parse(expiryDateStr, 'dd/MM/yyyy', new Date());
+
+    //         if (!isValid(issueDate) || !isValid(expiryDate)) {
+    //             console.log('Invalid date format');
+    //             ctx.addIssue({
+    //                 code: z.ZodIssueCode.custom,
+    //                 message: `Invalid date format for ${issue} or ${expiry}`,
+    //                 path: [issue, expiry],
+    //             });
+    //             continue;
+    //         }
+
+    //         const issuePlusThreeMonths = addMonths(issueDate, 3);
+    //         if (!isAfter(expiryDate, issuePlusThreeMonths)) {
+    //             console.log(`Expiry date ${expiryDateStr} is not at least 3 months after issue date ${issueDateStr}`);
+    //             ctx.addIssue({
+    //                 code: z.ZodIssueCode.custom,
+    //                 message: `${expiry} must be at least 3 months after ${issue}`,
+    //                 path: [expiry],
+    //             });
+    //         }
+    //     }
+    // });
+    // const dateValidationSchema = z.object({}).
+
+
+    // const schema = z.intersection(baseSchema, dateValidationSchema);
+
+
+
+    // superRefine((data, ctx) => {
+    //     console.log('Refine function called with data:', data);
+    //     for (const { issue, expiry } of dateFieldPairs) {
+    //         const issueDateStr = data[issue];
+    //         const expiryDateStr = data[expiry];
+
+    //         console.log(`Processing pair: ${issue} (${issueDateStr}) and ${expiry} (${expiryDateStr})`);
+
+    //         if (!issueDateStr || !expiryDateStr) {
+    //             console.log('Missing date value(s)');
+    //             ctx.addIssue({
+    //                 code: z.ZodIssueCode.custom,
+    //                 message: `Both ${issue} and ${expiry} must be provided`,
+    //                 path: [issue, expiry],
+    //             });
+    //             continue;
+    //         }
+
+    //         const issueDate = parse(issueDateStr, 'dd/MM/yyyy', new Date());
+    //         const expiryDate = parse(expiryDateStr, 'dd/MM/yyyy', new Date());
+
+    //         if (!isValid(issueDate) || !isValid(expiryDate)) {
+    //             console.log('Invalid date format');
+    //             ctx.addIssue({
+    //                 code: z.ZodIssueCode.custom,
+    //                 message: `Invalid date format for ${issue} or ${expiry}`,
+    //                 path: [issue, expiry],
+    //             });
+    //             continue;
+    //         }
+
+    //         const issuePlusThreeMonths = addMonths(issueDate, 3);
+    //         if (!isAfter(expiryDate, issuePlusThreeMonths)) {
+    //             console.log(`Expiry date ${expiryDateStr} is not at least 3 months after issue date ${issueDateStr}`);
+    //             ctx.addIssue({
+    //                 code: z.ZodIssueCode.custom,
+    //                 message: `${expiry} must be at least 3 months after ${issue}`,
+    //                 path: [expiry],
+    //             });
+    //         }
+    //     }
+    // });
+
+
+
+
+
+    // console.log('Validating test data...');
+    // const result = schema.safeParse(testData);
+    // console.log('Validation result:', result);
+
+    return schema;
+
+
+};
+
+
 const DynamicGeo = () => {
-    return <>
-        <IdentityVerificationStep dynamicFields={dynamicFields} />
-    </>
+
+
+    const { areaRequiredDocs } = useSelector(selectVerificationFields)
+
+    const schema = createDynamicSchema(areaRequiredDocs)
+
+
+    return <SafeAreaView>
+        <>
+            {
+                areaRequiredDocs && <IdentityVerificationStep dynamicFields={areaRequiredDocs}
+                    validationSchema={schema}
+                />
+            }
+        </>
+    </SafeAreaView>
+
+
 }
 
 export default DynamicGeo

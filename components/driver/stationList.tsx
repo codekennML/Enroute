@@ -161,6 +161,7 @@ interface PredictionListProps {
     isLast: boolean;
     iconSize: number,
     isLoading?: boolean
+    showIcon?: boolean
     onPress: (value: PredictionOrLocation) => void
 }
 
@@ -174,7 +175,7 @@ const SkeletonStationList = () => (
     </View>
 );
 
-export const StationList: React.FC<PredictionListProps> = ({ prediction, iconSize, onPress }) => {
+export const StationList: React.FC<PredictionListProps> = ({ prediction, iconSize, onPress, showIcon = true }) => {
     const isPrediction = 'structured_formatting' in prediction;
     const mainText = isPrediction ? prediction.structured_formatting.main_text : prediction.town;
     const secondaryText = isPrediction ? prediction.structured_formatting.secondary_text : `${prediction.state}, ${prediction.country}`;
@@ -182,9 +183,12 @@ export const StationList: React.FC<PredictionListProps> = ({ prediction, iconSiz
     return (
         <Button className='w-full p-1 pl-1 rounded-md' variant={"ghost"} onPress={() => onPress(prediction)}>
             <View className='flex flex-row items-center justify-start gap-x-3 '>
-                <View className='bg-muted dark:bg-transparent bg-gray-100 rounded-md  items-center flex flex-row justify-center'>
-                    <Landmark size={iconSize ?? 28} className="text-primary" />
-                </View>
+                {
+                    showIcon &&
+                    <View className='bg-muted dark:bg-transparent bg-gray-100 rounded-md  items-center flex flex-row justify-center'>
+                        <Landmark size={iconSize ?? 28} className="text-primary" />
+                    </View>
+                }
                 <View>
                     <View className=''>
                         <Text variant="smallTitle" color="primary" className=' tracking-wide text-ellipsis overflow-hidden  font-medium '>

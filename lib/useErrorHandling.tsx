@@ -9,13 +9,14 @@ export function useErrorHandling() {
     const [error, setError] = useState<{ type: string, status?: number, message?: string, title?: string, reasons?: Record<string, string> } | null>(null);
 
     const handleError = (error: any) => {
+        console.log("Err", error)
         const status = error.response?.status || error.status || error?.data?.status || 500;
         const message = error.response?.data?.message || error?.data.message || error.message || 'An unknown error occurred';
         let reasons = error?.reasons || error?.data?.reason
 
         let type = 'Unknown';
         if (status >= 500) {
-            type = 'Server Error';
+            type = 'ServerError';
             dispatch(showToast({
                 message: "Something went wrong. Please try again.",
                 notification: "danger",
@@ -27,17 +28,29 @@ export function useErrorHandling() {
 
 
         } else if (status === 400) {
-            type = 'Validation Error';
+            type = 'ValidationError';
+
 
         }
         else if (status === 403) {
 
             type = "Forbidden"
             dispatch(showToast({
-                message: "You do not have sufficient permission to perform his action.",
+                message: message || "You do not have sufficient permission to perform his action.",
                 notification: "danger",
                 type: "foreground",
                 title: "Internal error"
+            }))
+
+        }
+        else if (status === 404) {
+
+            type = "NotFound"
+            dispatch(showToast({
+                message: "You do not have sufficient permission to perform his action.",
+                notification: "danger",
+                type: "foreground",
+                title: " "
             }))
 
         }
@@ -45,6 +58,16 @@ export function useErrorHandling() {
             type = ""
             dispatch(showToast({
                 message: "Another record  was found with the received data.Please check your request and try again ",
+                notification: "warning",
+                type: "foreground",
+                title: ""
+            }))
+        }
+
+        else if (status === 429) {
+            type = ""
+            dispatch(showToast({
+                message: "Too many requests. Please try again after some time.",
                 notification: "warning",
                 type: "foreground",
                 title: ""

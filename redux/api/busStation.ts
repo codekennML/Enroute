@@ -1,3 +1,6 @@
+import { updateStations } from '../slices/busStations';
+import { store } from '../store';
+import { getInitialBusStationsSchema } from './../../../../route/src/routes/schemas/busStation';
 import { api } from './apiSlice'; // Adjust the import path as necessary
 
 // Define interfaces for the request payloads
@@ -63,7 +66,7 @@ export const busStationApi = api.injectEndpoints({
                 method: 'POST',
                 body: args,
             }),
-            invalidatesTags: ['BusStation'],
+            invalidatesTags: ['busstation'],
         }),
 
         getBusStations: builder.query<any, GetBusStationsParams>({
@@ -71,65 +74,104 @@ export const busStationApi = api.injectEndpoints({
                 url: '/busStations',
                 params: args,
             }),
-            providesTags: ['BusStation'],
+            providesTags: ['busstation'],
+        }),
+
+        autoCompleteBusStations: builder.query<any, string>({
+            query: (args) => ({
+                url: `bus_station/autocomplete/?query=${encodeURIComponent(args)}`,
+                method: "GET"
+            }),
+            transformResponse: (response) => {
+
+                return { data: response?.data }
+            },
+            // transformErrorResponse: ()
+
+            providesTags: ['busstation'],
+        }),
+
+        getInitialBusStations: builder.query<any, { lat?: number, lng?: number, state?: string, country: string }>({
+            query: (args) => {
+
+                const params = new URLSearchParams();
+
+                // Add parameters conditionally to avoid `undefined` values
+                if (args.lat !== undefined) params.append('lat', args.lat.toString());
+                if (args.lng !== undefined) params.append('lng', args.lng.toString());
+                if (args.state) params.append('state', args.state);
+                params.append('country', args.country);
+
+                return {
+                    url: `bus_station/get_initial_station/?${params.toString()}`,
+                    method: "GET"
+                };
+            },
+            transformResponse: (response) => {
+                const { data } = response
+                store.dispatch(updateStations(data))
+            },
+            providesTags: ['busstation'],
         }),
 
         getBusStationById: builder.query<any, GetBusStationByIdParams>({
             query: (args) => ({
-                url: `/busStations/${args.id}`,
+                url: `/bus_station/${args.id}`,
                 method: 'GET',
             }),
-            providesTags: ['BusStation'],
+            providesTags: ['busstation'],
         }),
 
         suggestBusStation: builder.mutation<any, SuggestBusStationPayload>({
             query: (args) => ({
-                url: '/busStations/suggest',
+                url: '/bus_station/suggest',
                 method: 'POST',
                 body: args,
             }),
-            invalidatesTags: ['BusStation'],
+            invalidatesTags: ['busstation'],
         }),
 
         considerSuggestedStation: builder.mutation<any, ConsiderSuggestedStationPayload>({
             query: (args) => ({
-                url: '/busStations/considerSuggestion',
+                url: '/bus_station/considerSuggestion',
                 method: 'POST',
                 body: args,
             }),
-            invalidatesTags: ['BusStation'],
+            invalidatesTags: ['busstation'],
         }),
 
         updateBusStation: builder.mutation<any, UpdateBusStationPayload>({
             query: (args) => ({
-                url: '/busStations/update',
+                url: '/bus_station/update',
                 method: 'PATCH',
                 body: args,
             }),
-            invalidatesTags: ['BusStation'],
+            invalidatesTags: ['busstation'],
         }),
 
         deleteBusStations: builder.mutation<any, DeleteBusStationsPayload>({
             query: (args) => ({
-                url: '/busStations/delete',
+                url: '/bus_station/delete',
                 method: 'DELETE',
                 body: args,
             }),
-            invalidatesTags: ['BusStation'],
+            invalidatesTags: ['busstation'],
         }),
 
         calculateBusStationsStats: builder.mutation<any, CalculateBusStationsStatsPayload>({
             query: (args) => ({
-                url: '/busStations/stats/calculate',
+                url: '/bus_station/stats/calculate',
                 method: 'DELETE',
                 body: args,
             }),
-            invalidatesTags: ['BusStation'],
+            invalidatesTags: ['busstation'],
         }),
     }),
 });
 
 export const {
+    useAutoCompleteBusStationsQuery,
+    useGetInitialBusStationsQuery,
     useCreateBusStationMutation,
     useGetBusStationsQuery,
     useGetBusStationByIdQuery,

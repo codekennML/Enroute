@@ -1,6 +1,6 @@
 
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { View, TouchableOpacity, TextInput, Keyboard, Modal } from 'react-native';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Button } from '@/components/ui/button';
@@ -11,13 +11,18 @@ import TownsList, { PredictionOrLocation, renderSkeletons, StationList } from '@
 import { selectSearchInfo, setDestination, setOrigin } from '@/redux/slices/search';
 import { selectUserInfo } from '@/redux/slices/user';
 
-import { Locate, X } from '@/lib/icons/icons';
+import { Compass, Locate, X } from '@/lib/icons/icons';
 import useLocation from '@/lib/useLocation';
 import useDebounce from '@/lib/useDebounce';
-import { AutoCompleteQuery, useGetAutoCompleteDataQuery, useGetGeocodedLocationQuery } from '@/redux/api/maps';
+import { AutoCompleteQuery, useGetAutoCompleteDataQuery, useGetGeocodedLocationQuery, useLazyGetGeocodedLocationQuery } from '@/redux/api/maps';
 import { Location, Prediction } from '@/types/types';
 import { predictions as defaultPredictions, locations } from "@/components/constants/predictions";
 import { useSelector } from 'react-redux';
+import { selectBusStations } from '@/redux/slices/busStations';
+import { Skeleton } from '../ui/skeleton';
+import LocationMapManual from '@/components/custom/selectLocationMapManual'
+import { useWrappedErrorHandling } from '@/lib/useErrorHandling';
+import { showToast } from '@/redux/slices/toast';
 
 interface SearchLocateProps {
 
@@ -25,10 +30,31 @@ interface SearchLocateProps {
 
 }
 
+export const getPlaceFullName = (place: PredictionOrLocation, type: string) => {
+
+  // console.log(place, "HIii")
+  const name = `${place?.description ? `${place.description}` : place?.name ? `${place?.name}` : ""}`
+
+  const townName = place?.town?.name ? `,${place?.town?.name}` : ""
+  const stateName = place?.state?.name ? `,${place?.state?.name}` : ""
+  const countryName = place?.country?.name ? `,${place?.country?.name}` : ""
+  const placeName = name + townName + stateName + countryName
+
+  const address = type === "courier" ? name : placeName.trim()
+
+  return address
+}
+
+
 
 const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
   const dispatch = useAppDispatch();
   const { location } = useLocation();
+  const { handleError } = useWrappedErrorHandling()
+
+
+
+
   //TODO UPDATE THIS TO MATCH
   const role = "rider"
 
@@ -36,18 +62,20 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
     driver: "driver",
     rider: "rider"
   }
-  const { origin, destination } = useSelector(selectSearchInfo)
-  console.log(origin, destination, "FOLLLL")
+  const tripInfo = useSelector(selectSearchInfo)
+
+  const { origin, destination, type } = tripInfo
+  // console.log(origin, destination, "FOLLLL")
   const userInfo = useAppSelector(selectUserInfo);
 
-  const { type } = useSelector(selectSearchInfo)
+  const busStations = useSelector(selectBusStations)
 
   const [originName, setOriginName] = useState("");
   const [destinationName, setDestinationName] = useState("");
   const [focusedInput, setFocusedInput] = useState<"origin" | "destination" | null>(null);
+  const [manualLocationPickerOpen, setIsManualLocationPickerOpen] = useState<boolean>(false)
   const [initialGeocodeComplete, setInitialGeocodeComplete] = useState(false);
   const [canRunAutoComplete, setCanRunAutoComplete] = useState(false)
-  const [canRunGeocode, setCanRunGeocode] = useState(true)
   const [predictions, setPredictions] = useState<PredictionOrLocation[]>(locations);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string>()
   const [initialLocation, setInitialLocation] = useState<Location | undefined>()
@@ -69,26 +97,26 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
 
   const [originNameEdited, setOriginNameEdited] = useState(false);
   const [destinationNameEdited, setDestinationNameEdited] = useState(false);
+  const [triggerGeolocate] = useLazyGetGeocodedLocationQuery()
+
 
 
 
   useEffect(() => {
 
 
-    console.log(origin, destination, "Heyyyy")
-
     if (origin || (destination && origin)) {
 
 
       setCanRunAutoComplete(false) //If there was a value in state we want to just track it within the results
-      setCanRunGeocode(false)
 
-      setOriginName(origin?.name)
+      setOriginName(getPlaceFullName(origin, type))
+      console.log("RAN INTIAL LOCATION POPULATE")
       setInitialLocation(origin) //Setting the initial location
 
       if (destination) {
 
-        setDestinationName(destination.name)  //seting value in destination input to the name in state
+        setDestinationName(getPlaceFullName(destination, type))  //seting value in destination input to the name in state
         setPredictionDestination(destination)
       }
       //Make the origin field editable 
@@ -99,8 +127,8 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
       destinationInputRef.current?.focus();
     }
 
+  }, [tripInfo]);
 
-  }, []);
 
 
   useEffect(() => {
@@ -131,206 +159,30 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
   }, [originName, destinationName]);
 
 
-
-  const geocodeQuery = useMemo(() => {
-
-    //This wont run on initial  query , if there is an origin  || an origin and a  destination, 
-    if (!initialGeocodeComplete && location?.lat && location?.lng) {
-      return { lat: location.lat, lng: location.lng, type: 'origin' as const };
-    }
-
-    if (selectedPlaceId) {
-
-      return { placeId: selectedPlaceId, type: focusedInput! }
-    }
-
-
-    return null;
-  }, [initialGeocodeComplete, location, selectedPlaceId]);
-
-
-  // console.log(geocodeQuery, "Qywyeuiohgffghjoiuytfghjoiuytrfghjk")
-  const { data: geocodedResults, isSuccess: isGeocodeSuccess } = useGetGeocodedLocationQuery(geocodeQuery, {
-    skip: !geocodeQuery || !canRunGeocode,
-    refetchOnMountOrArgChange: true
-  });
-
-
-
   const autoCompleteQuery = useMemo(() => {
+
     const input = focusedInput === "origin" ? manualDebouncedOrigin : manualDebouncedDestination
-
-
     const response = manualDebouncedOrigin?.length > 1 || manualDebouncedDestination.length > 1 ? {
       type: focusedInput || "destination",
       input,
-      component: `country:${userInfo.country?.short_name}`,
-      establishment: focusedInput === "destination" ? "bus_station" : ""
+      service: type,
+      component: `country:${userInfo.country?.iso_code?.toLowerCase()}`,
+
     } : undefined
+
+    if (focusedInput === "destination" && type !== "courier" && response)
+      response["establishment"] = "bus_station"
 
     return input && response ?
       response : undefined
 
   }, [focusedInput, manualDebouncedDestination, manualDebouncedOrigin, userInfo.country])
 
-  console.log(autoCompleteQuery, "NIccce")
 
   const { data: autocompleteResults, isSuccess: isAutoCompleteSuccess, isLoading: isAutocompleteLoading, isFetching: isAutocompleteFetching } = useGetAutoCompleteDataQuery(autoCompleteQuery, {
     skip: !autoCompleteQuery || !canRunAutoComplete
   });
 
-
-
-  // useEffect(() => {
-
-
-
-  //   if (geocodedResults && isGeocodeSuccess && initialGeocodeComplete) {
-  //     //This is now a geocode query after initial load  
-
-  //     const parsed = JSON.parse(geocodedResults);
-  //     if (parsed?.results?.length > 0) {
-
-
-
-  //       let state: string = "";
-  //       let country: string = "";
-  //       let city: string = "";
-
-  //       parsed?.results[0]?.address_components.forEach((item: Record<string, string>) => {
-  //         if (item.types.includes("administrative_area_level_2")) {
-  //           city = item.long_name;
-  //         }
-  //         if (item.types.includes("administrative_area_level_1")) {
-  //           state = item.long_name;
-  //         }
-  //         if (item.types.includes("country")) {
-  //           country = item.long_name;
-  //         }
-  //       });
-
-
-  //       const locationInfo = {
-  //         name: parsed.results[0].formatted_address,
-  //         placeId: parsed.results[0].place_id,
-  //         coordinates: [parsed.results[0].geometry.location.lat,
-  //         parsed.results[0].geometry.location.lng] as [number, number],
-  //         state,
-  //         town: city,
-  //         country
-  //       }
-
-  //       const type = parsed?.type
-
-
-  //       if (type === "origin") {
-  //         //Set  both initial and predicted to this value 
-  //         setInitialLocation(locationInfo)
-
-  //         setPredictionLocation(locationInfo)
-
-  //       }
-  //       else {
-  //         setInitialDestination(locationInfo)
-
-  //         setPredictionDestination(locationInfo)
-  //       }
-
-
-  //     }
-
-  //   }
-
-  //   if (geocodedResults && isGeocodeSuccess && !initialGeocodeComplete) {
-  //     const parsed = JSON.parse(geocodedResults);
-  //     if (parsed?.results?.length > 0) {
-
-  //       let state: string = "";
-  //       let country: string = "";
-  //       let city: string = "";
-
-  //       parsed?.results[0]?.address_components.forEach((item: Record<string, string>) => {
-  //         if (item.types.includes("administrative_area_level_2")) {
-  //           city = item.long_name;
-  //         }
-  //         if (item.types.includes("administrative_area_level_1")) {
-  //           state = item.long_name;
-  //         }
-  //         if (item.types.includes("country")) {
-  //           country = item.long_name;
-  //         }
-  //       });
-
-
-  //       const locationInfo = {
-  //         name: parsed.results[0].formatted_address,
-  //         placeId: parsed.results[0].place_id,
-  //         coordinates: [parsed.results[0].geometry.location.lat,
-  //         parsed.results[0].geometry.location.lng] as [number, number],
-  //         state,
-  //         town: city,
-  //         country
-  //       }
-
-
-  //       setInitialLocation(locationInfo)  //This is where we keep the initial geocoded location so we can compare when the field is blurred
-  //       setPredictionLocation(undefined)
-
-  //       setOriginName(parsed.results[0].formatted_address);
-
-  //       setInitialGeocodeComplete(true);
-  //     }
-  //   }
-
-  //   // setSelectedPlaceId(undefined)
-
-
-  // }, [geocodedResults, isGeocodeSuccess, initialGeocodeComplete]);
-
-  useEffect(() => {
-    console.log(isAutoCompleteSuccess, "isSuccess")
-    if (geocodedResults && isGeocodeSuccess) {
-      const parsed = JSON.parse(geocodedResults);
-      if (parsed?.results?.length > 0) {
-        let state: string = "";
-        let country: string = "";
-        let city: string = "";
-        parsed?.results[0]?.address_components.forEach((item: Record<string, string>) => {
-          if (item.types.includes("administrative_area_level_2")) {
-            city = item.long_name;
-          }
-          if (item.types.includes("administrative_area_level_1")) {
-            state = item.long_name;
-          }
-          if (item.types.includes("country")) {
-            country = item.long_name;
-          }
-        });
-        const locationInfo = {
-          name: parsed.results[0].formatted_address,
-          placeId: parsed.results[0].place_id,
-          coordinates: [parsed.results[0].geometry.location.lat,
-          parsed.results[0].geometry.location.lng] as [number, number],
-          state,
-          town: city,
-          country
-        }
-
-        const type = parsed?.type;
-        if (type === "origin") {
-          setInitialLocation(locationInfo);
-          setPredictionLocation(locationInfo);
-          if (!initialGeocodeComplete) {
-            setOriginName(parsed.results[0].formatted_address);
-            setInitialGeocodeComplete(true);
-          }
-        } else {
-          setInitialDestination(locationInfo);
-          setPredictionDestination(locationInfo);
-        }
-      }
-    }
-  }, [geocodedResults, isGeocodeSuccess, initialGeocodeComplete]);
 
 
   useEffect(() => {
@@ -339,6 +191,7 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
 
     if (predictionDestination && (initialLocation || predictionLocation) && (destinationNameEdited || originNameEdited)) {
       //Close the sheet, dispatch the action 
+      console.log(predictionDestination, "logging FINAL ORIGIN")
       dispatch(setOrigin(predictionLocation ?? initialLocation!))
       dispatch(setDestination(predictionDestination))
 
@@ -350,34 +203,32 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
 
     }
 
-  }, [initialLocation, predictionLocation, predictionDestination, destinationNameEdited, originNameEdited])
+  }, [initialLocation, predictionLocation, predictionDestination])
 
 
   useEffect(() => {
 
     if (autocompleteResults && isAutoCompleteSuccess) {
 
-      const parsed = JSON.parse(autocompleteResults);
 
-      if (parsed?.predictions) {
-
-        setPredictions(prev => parsed.predictions);
+      if (autocompleteResults?.searchType === "towns" || autocompleteResults?.searchType === "stations") {
+        setPredictions(autocompleteResults?.predictions?.data)
+      }
+      else if (autocompleteResults?.searchType === "google") {
+        // console.log(autocompleteResults?., "MILLER")
+        const parsedLocations = JSON.parse(autocompleteResults?.predictions);
+        setPredictions(parsedLocations);
       }
     } else {
-
-      setPredictions(locations.slice(0, 6))
+      setPredictions(busStations)
     }
   }, [autocompleteResults, isAutoCompleteSuccess, debouncedDestinationName, debouncedOriginName]);
 
 
   const handleInputChange = useCallback((text: string, inputType: "origin" | "destination") => {
 
-
-
     //Ensure to set autocomplete to true incase its been set to false
     setCanRunAutoComplete(true)
-    setCanRunGeocode(true)
-
 
     if (inputType === "origin") {
 
@@ -385,10 +236,10 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
 
       // if (!originNameEdited) setOriginNameEdited(true);
 
-      if (predictionLocation) {
+      // if (predictionLocation) {
 
-        setPredictionLocation(undefined)
-      }
+      // setPredictionLocation(undefined)
+      // }
 
     } else {
       setDestinationName(text);
@@ -400,14 +251,13 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
       }
     }
     if (!text) {
-
-      setPredictions(locations);
+      setPredictions(busStations);
     }
   }, []);
 
   const handleBlur = (inputType: string) => {
 
-
+    console.log("RUNNING BLUR FN", "A")
 
     // console.log(predictionLocation, selectedPlaceId)
 
@@ -415,88 +265,139 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
 
     if (inputType === "origin") {
       //Check if there is prediction location if there isnt , set the origin name to initialLocation but not before setting canRunAutocomplete to false
+      console.log(selectedPlaceId, !predictionLocation && !selectedPlaceId, "SELECTED CONDITION RESPONSE")
+      if (!predictionLocation && !selectedPlaceId) {
 
-      if ((!predictionLocation && !selectedPlaceId) || !selectedPlaceId) {
-
+        console.log("RUNNING FAILED AREA", initialLocation?.name)
 
         setOriginName(initialLocation?.name || "Unnamed road")
 
         setPredictionLocation(initialLocation)
 
       }
-
     }
-
-
   }
-
-
-  const handlePredictionSelection = (prediction: PredictionOrLocation) => {
-
+  const handlePredictionSelection = async (prediction: PredictionOrLocation) => {
+    console.log("BUllard")
     //Prevent an automplete query
     setCanRunAutoComplete(false)
 
-    const isPrediction = "structured_formatting" in prediction || "reference" in prediction
+    const isPrediction = "structured_formatting" in prediction
 
     if (isPrediction) {
 
-
-
-
-
       if (focusedInput === "origin") {
-        setOriginName(prediction.description);
+        setOriginName(getPlaceFullName(prediction, type));
         if (!originNameEdited) setOriginNameEdited(true);
         setSelectedPlaceId(prediction.place_id)
+        console.log("RAN_PREDICTION, NO GEO")
+        await getGeocodedResults("origin", prediction)
 
       } else {
 
-        setDestinationName(prediction.description);
-
+        setDestinationName(getPlaceFullName(prediction, type));
 
         if (!destinationNameEdited) setDestinationNameEdited(true);
+
         setSelectedPlaceId(prediction.place_id)
+
+        await getGeocodedResults("destination", prediction)
       }
+
+
     }
     else {
       //A cached location was picked , which means we can just automatically set the information withot geocoding
-      if (initialGeocodeComplete) {
-        //Make sure not to stop the initial location geocode when selecting a cached place 
-        setCanRunGeocode(false)
-      }
-
-
-
       if (focusedInput === "origin") {
-        setOriginName(`${prediction.town} - ${prediction.state}, ${prediction.country} `);
+
+        setOriginName(getPlaceFullName(prediction, type));
         if (!originNameEdited) setOriginNameEdited(true);
 
         setPredictionLocation(prediction)
-        // setSelectedPlaceId(prediction.place_id)
+        setSelectedPlaceId(prediction._id)
 
       } else {
 
-
-
-
-        setDestinationName(`${prediction.town} - ${prediction.state}, ${prediction.country} `)
-
+        setDestinationName(getPlaceFullName(prediction, type))
 
         if (!destinationNameEdited) setDestinationNameEdited(true);
 
         setPredictionDestination(prediction)
-        // setSelectedPlaceId(prediction.place_id)
+        setSelectedPlaceId(prediction._id)
       }
 
-      //We also need to set a selected place id for the condition in handle blur to happen if the user does not select any prediction on the origin input
-      setSelectedPlaceId(prediction.placeId)
-
     }
-
 
     Keyboard.dismiss()
 
     // setPredictions(locations.slice(0, 3));
+
+  }
+  const getGeocodedResults = async (type: "origin" | "destination", prediction: Prediction) => {
+
+
+    const { error, data } = await triggerGeolocate({
+      type,
+      placeId: prediction.place_id,
+      isManual: false
+    })
+
+    if (error) {
+
+      //TODO SEND TO LOGGING SERVICE HERE
+      // const message =  error?.message
+
+      // error["message"] =  "Something went wrong.Please try again."
+
+      dispatch(showToast({
+        notification: "danger",
+        title: "Error",
+        message: "Something went wrong.Please try again in some minutes",
+        type: "foreground"
+      }))
+
+      return
+    }
+
+    const parsed = JSON.parse(data as string);
+    if (parsed?.results?.results?.length > 0) {
+      const placeData = parsed?.results?.results
+      let state: string = "";
+      let country: string = "";
+      let city: string = "";
+
+      placeData[0]?.address_components.forEach((item: Record<string, string>) => {
+        if (item.types.includes("administrative_area_level_2")) {
+          city = item.long_name;
+        }
+        if (item.types.includes("administrative_area_level_1")) {
+          state = item.long_name;
+        }
+        if (item.types.includes("country")) {
+          country = item.long_name;
+        }
+      });
+
+      const locationInfo = {
+        name: placeData[0].formatted_address,
+        placeId: placeData[0].place_id,
+        coordinates: [placeData[0].geometry.location.lat,
+        placeData[0].geometry.location.lng] as [number, number],
+        state: { name: state, _id: undefined },
+        town: { name: city, _id: undefined },
+        country: { name: country, _id: undefined }
+      }
+
+      const type = parsed?.type;
+      if (type === "origin") {
+        setInitialLocation(locationInfo);
+        setPredictionLocation(locationInfo);
+
+      } else {
+        setInitialDestination(locationInfo);
+        setPredictionDestination(locationInfo);
+      }
+    }
 
   }
 
@@ -506,7 +407,7 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
     placeholder: string,
     ref: React.RefObject<TextInput>
   ) => (
-    <View className='w-[90%] rounded-md relative'>
+    <View className='w-[83%] rounded-md relative'>
       <Input
         ref={ref}
         selectTextOnFocus={true}
@@ -514,7 +415,7 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
         value={value}
         onFocus={() => handleInputFocus(inputType)}
         onBlur={() => handleBlur(inputType)}
-        className={`border-none border-0 h-10 bg-accent border-transparent font-medium text-[8px] cursor:text-gray-500 text-muted-foreground px-2 py-1 ${focusedInput === inputType ? "border-2 border-blue-600" : "border-2 border-gray-200"}`}
+        className={`h-10  font-medium text-[8px] cursor:text-gray-500 text-foreground px-2 py-1 ${focusedInput === inputType ? "border-2 border-primary dark:border-primary" : "border-2 border-gray-200"}`}
         placeholder={placeholder}
         onChangeText={(text) => handleInputChange(text, inputType)}
         editable={inputType === "destination" || initialGeocodeComplete}
@@ -525,100 +426,87 @@ const SearchLocate: React.FC<SearchLocateProps> = ({ openModal }) => {
   ), [focusedInput, initialGeocodeComplete, handleInputFocus, handleInputChange]);
 
 
+  const handleLocationManualPicker = () => {
+    setIsManualLocationPickerOpen(true)
+  }
+
   return (
     <View className=''>
-      <View className='px-4'>
+      <View className='px-2'>
         <View className='flex flex-col gap-y-1.5'>
           <View className='flex flex-row items-center gap-x-2'>
-            <View className='flex flex-col w-[5%] items-center gap-y-2'>
+            <View className='flex flex-col w-[10%] items-center gap-y-2'>
               <View className='rounded-full h-6 w-6 bg-blue-800/10 flex flex-row justify-center items-center'>
                 <View className='bg-primary/60 h-3 w-3 rounded-full' />
               </View>
             </View>
-            {renderInput("origin", originName, initialGeocodeComplete ? "Enter origin" : "Retrieving location...", originInputRef)}
+            {renderInput("origin", originName, initialGeocodeComplete ? "Pickup location" : "Retrieving location...", originInputRef)}
           </View>
 
           <View className='relative'>
-            <Separator className='h-6 w-[1px] bg-transparent absolute border-l-[2px] border-blue-600/80' orientation='vertical' style={{ left: 8, top: -12 }} />
+            <Separator className='h-6 w-[1px] bg-transparent absolute border-l-[2px] border-primary' orientation='vertical' style={{ left: 18, top: -12 }} />
           </View>
 
           <View className='flex flex-row items-center gap-x-2'>
-            <View className='flex flex-col w-[5%] items-center gap-y-2'>
+            <View className='flex flex-col w-[10%] items-center gap-y-2'>
               <View className='rounded-full h-6 w-6 bg-blue-800/10 flex flex-row justify-center items-center'>
                 <View className='bg-primary/80 h-3 w-3 rounded-full' />
               </View>
             </View>
-            {renderInput("destination", destinationName, "Search towns e.g Ikeja", destinationInputRef)}
+            {renderInput("destination", destinationName, "Search for city e.g Ikeja", destinationInputRef)}
           </View>
         </View>
       </View>
 
       <Separator className='bg-slate-300/80 mt-4' orientation='horizontal' />
 
-      <View className='space-y-6 px-4'>
+      <View className='space-y-6 px-1'>
         <View className='gap-y-2 mt-4'>
 
           <TownsList
-            // locations={locations}
             predictions={predictions}
             onPress={handlePredictionSelection}
             isLoading={isAutocompleteLoading || isAutocompleteFetching} />
 
-
           {
-            type === "courier" || role === ROLES?.DRIVER || focusedInput === "origin" &&
-
-            <Button
-              variant="ghost"
-              className='h-10 flex flex-row gap-x-3.5 w-full text-left my-2'
-              onPress={() => {
-                router.push({
-                  pathname: "/summary",
-                  params: {
-                    type: "couri",
-                    name: `${type === "courier" ? "Package" : "Ride"} details`,
-                  }
-                });
-              }}
-            >
-              <Locate size={28} className="pl-0 text-primary" />
-              <Text variant="subhead" color="secondary">Set location on map</Text>
-            </Button>
+            isAutocompleteLoading || isAutocompleteFetching ?
+              <Skeleton className={"w-3/4 h-8"} />
+              :
+              predictions.length > 0 && focusedInput && type === "courier" &&
+              <Button
+                variant="ghost"
+                className='h-10 flex flex-row gap-x-3.5 w-full text-left my-2  ml-3'
+                onPress={() => handleLocationManualPicker()}
+              >
+                <Compass size={24} className="pl-4 text-foreground" />
+                <Text variant="body" color="secondary">Set location on map</Text>
+              </Button>
           }
-          {/* {predictions.map((prediction, index) => (
-            <Button
-              key={prediction.place_id}
-              variant="ghost"
-              onPress={() => handlePredictionSelection(prediction)}
-              className='mt-0.5'
-            >
-              <StationList prediction={prediction} isLast={index === predictions.length - 1} iconSize={24} />
 
-            </Button>
-          ))} */}
         </View>
 
-        {/* <View className='w-full'>
-          <Button
-            variant="ghost"
-            className='h-10 flex flex-row gap-x-3.5 w-full text-left my-3'
-            onPress={() => {
-              router.push({
-                pathname: "/summary",
-                params: {
-                  type: "couri",
-                  name: `${type === "courier" ? "Package" : "Ride"} details`,
-                }
-              });
-            }}
-          >
-            <Locate size={24} className="pl-0 text-gray-600/80" />
-            <Text variant="body" color="secondary">Set location on map</Text>
-          </Button>
-        </View> */}
+
       </View>
+
+      <Modal
+        visible={manualLocationPickerOpen}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setIsManualLocationPickerOpen(false)}
+      >
+        <View className='flex-1 bg-slate-100'>
+
+
+          <LocationMapManual setIsManualLocationPickerOpen={setIsManualLocationPickerOpen} focusedInput={focusedInput} openParentLocateModal={openModal} />
+        </View>
+      </Modal >
     </View>
   );
 };
 
 export default SearchLocate;
+
+
+
+
+

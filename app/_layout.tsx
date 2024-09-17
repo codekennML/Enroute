@@ -35,7 +35,9 @@ import {
 import { router, Slot, Stack } from "expo-router"
 import * as SecureStore from "expo-secure-store"
 
-import { updateOtherUserData } from '@/redux/slices/user';
+import { setCountry, updateOtherUserData } from '@/redux/slices/user';
+import useLocation from '@/lib/useLocation';
+import { BACKEND_URL } from '@/redux/api/apiSlice';
 
 
 
@@ -83,7 +85,7 @@ export default function RootLayout() {
 
       const accessToken = await SecureStore.getItemAsync("x_a_t")
       const refreshToken = await SecureStore.getItemAsync("x_r_t")
-      const user = await SecureStore.getItemAsync("user") || "66c4acbec38b4f7853d71031"
+      const user = await SecureStore.getItemAsync(process.env.EXPO_PUBLIC_USER_IDENTIFIER) || "66c4acbec38b4f7853d71031"
 
 
       const apiUrl = Platform.OS === "ios" ? "http://127.0.0.1:3500/api" : "http://10.0.2.2:3500/api"
@@ -104,7 +106,7 @@ export default function RootLayout() {
       }))
       if (data) {
 
-        setUserRole(data.roles)
+        setUserRole(undefined)
       } else {
         setUserRole(undefined)
       }
@@ -117,14 +119,22 @@ export default function RootLayout() {
     }
   }
 
+  const { location, error, permissionGranted } = useLocation("locate")
+
+
+
   useEffect(() => {
     const loadApp = async () => {
+
+
+
       const theme = await AsyncStorage.getItem('theme');
       if (Platform.OS === 'web') {
         // Adds the background color to the html element to prevent white background on overscroll.
         document.documentElement.classList.add('bg-background');
       }
 
+      console.log(theme, colorScheme)
       if (!theme) {
         await AsyncStorage.setItem('theme', colorScheme);
         setIsColorSchemeLoaded(true);
@@ -145,22 +155,18 @@ export default function RootLayout() {
 
           const response = await axios.get(`https://api.findip.net/${ipaddress}/?token=356ee8ee1d174f0b857f2740d9861802`);
 
-          // console.log(response.data, "response");
-
           if (response.data && response.data.country) {
             const country = response.data.country;
-            // setCountryState(country); // Update local state
             const isoCode = country.iso_code
             return isoCode
           }
         } catch (error) {
-          return "none"
+          return undefined
         }
       };
 
       const setCountryData = async () => {
         try {
-
           const getIpAddress = async () => {
             try {
               const state = await NetInfo.fetch();
@@ -172,36 +178,49 @@ export default function RootLayout() {
                 // console.log('IP Address:', ipAddress);
                 return ipAddress
               } else {
-                return "none"
+                return undefined
               }
             } catch (error) {
-              return "none"
+              return undefined
             }
           };
 
           const ipv4 = await getIpAddress();
 
-          // Fetch country short code using the IP address
-          const countryShortCode = await fetchCountry(ipv4);
+          if (!ipv4) {
+            //Return  
+            return
+          } else {
 
-          // console.log(countryShortCode);
+            const countryISOCode = await fetchCountry(ipv4);
 
-          // Dispatch the country code to the Redux store
-          if (countryShortCode && countryShortCode !== "none") {
-
-            setCountryCode(countryShortCode)
-
-          }
-          else {
-
-            if (countryShortCode === "none" || !countryShortCode) {
-              setCountryCode("NG")
-
+            if (!countryISOCode) {
+              return
             }
+
+            const countryData = await axios.get(`${BACKEND_URL}country/?shortCode=NG`)
+
+            if (!countryData) {
+              return
+            }
+
+            console.log(Object.keys(countryData))
+
+            const data = countryData?.data[0]
+
+            if (!data?._id) return
+            await store.dispatch(setCountry({
+              name: data?.name,
+              calling_code: data?.code,
+              iso_code: data?.isoCode,
+              coordinates: data?.coordinates,
+              currency: data?.currency
+            }))
 
           }
         } catch (error) {
           console.error("Error fetching country data:", error);
+          return
         }
       };
       // console.log("Emama")
@@ -226,8 +245,6 @@ export default function RootLayout() {
   }
 
   return (
-
-
     <Provider store={store}>
       <SafeAreaProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>

@@ -1,24 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity, RefreshControlBase } from 'react-native';
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radiogroup';
 import PhoneInput from 'react-native-phone-number-input';
 import { Separator } from "@/components/ui/seperator"
-import { MessageSquare } from "@/lib/icons/icons"
+import { MessageSquareMore } from "@/lib/icons/icons"
 import { router, useLocalSearchParams } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import { COLOR_THEME } from '@/lib/constants';
 import { useCreateOTPMutation } from '@/redux/api/otp';
-import { useCheckDuplicateAccountOfAnotherRoleMutation, useSignInMobileMutation, useVerifyAccountViaMobileMutation } from '@/redux/api/auth';
+import { useCheckDuplicateAccountOfAnotherRoleMutation, useHandleUserCanUpdateLoginDataMutation, useSignInMobileMutation, useVerifyAccountViaMobileMutation } from '@/redux/api/auth';
 import MobileInput from '@/components/ui/phoneInput';
 import Back from '@/components/ui/back';
 import { useWrappedErrorHandling } from '@/lib/useErrorHandling';
 import formatErrorMessage from '@/lib/formatErrorMessages';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '@/redux/slices/user';
 
 interface OtpParams {
-  type?: "change_mobile_google_account" | "change_mobile_email_account" | "login_mobile" | "create_mobile_email_account" | "create_mobile_google_account",
+  type?: "change_mobile_google_account" | "change_mobile_email_account" | "login_mobile" | "create_mobile_email_account" | "create_mobile_google_account" | "change_mobile",
   user: string
   otpMethod: "WhatsApp" | "SMS"
   mobile?: string,
@@ -30,18 +32,23 @@ interface OtpParams {
 const otpChannel = () => {
 
   const [isLoading, setIsLoading] = useState(false)
-  const [inlineError, setInlineErrors] = useState("")
   const [inputFocused, setInputFocused] = useState<string>("")
   const phoneInputRef = useRef<PhoneInput | null>(null)
   const { error, handleError, wrapWithHandling } = useWrappedErrorHandling()
 
   const [dispatchCreateOTP, { isLoading: isLoadingCreateOTP, isError: IsCreateOTPError, error: createOTPError }] = useCreateOTPMutation()
 
-  const [dispatchCheckDuplicateAccountRole, { isLoading: isCheckDupAccountLoading, isError: isCheckDupAccountError, error: checkDupAccountError }] = useCheckDuplicateAccountOfAnotherRoleMutation()
+  // const [dispatchCheckDuplicateAccountRole, { isLoading: isCheckDupAccountLoading, isError: isCheckDupAccountError, error: checkDupAccountError }] = useCheckDuplicateAccountOfAnotherRoleMutation()
 
   const [dispatchMobileSignIn, { isLoading: isMobileSignInLoading, isError: isMobileSignInError }] = useSignInMobileMutation()
 
-  const [dispatchVerifyViaMobile, { isLoading: isVerifyViaMobileLoading, isError: isVerifyViaMobileError }] = useVerifyAccountViaMobileMutation()
+  const [dispatchCheckUserCanUpdateLoginData] = useHandleUserCanUpdateLoginDataMutation()
+
+  // const [dispatchVerifyViaMobile, { isLoading: isVerifyViaMobileLoading, isError: isVerifyViaMobileError }] = useVerifyAccountViaMobileMutation()
+
+  //For users that are logged in and want to change their mobile 
+  const userInfo = useSelector(selectUserInfo)
+
 
   const { type, user, otpMethod, mobile, countryCode, countryIdCode } = useLocalSearchParams<OtpParams>()
 
@@ -79,7 +86,6 @@ const otpChannel = () => {
   useEffect(() => {
 
     if (error) {
-
       if (error.type === "ValidationError" && error?.reasons) {
 
         for (const [key, value] of Object.entries(error.reasons)) {
@@ -89,17 +95,22 @@ const otpChannel = () => {
         }
       }
 
+      if (error.type === "ValidationError" && !error?.reasons && error?.message) {
+        setError("mobile", {
+          message: error.message,
+          type: "random"
+        })
+      }
+
     }
-
-
   }, [error])
 
-  useEffect(() => {
-    const loading = isCheckDupAccountError || isLoadingCreateOTP
+  // useEffect(() => {
+  //   const loading = isCheckDupAccountError || isLoadingCreateOTP
 
-    setIsLoading(isLoading)
+  //   setIsLoading(isLoading)
 
-  }, [isCheckDupAccountLoading, isLoadingCreateOTP])
+  // }, [isCheckDupAccountLoading, isLoadingCreateOTP])
 
 
   const processSubmission = async (
@@ -159,42 +170,57 @@ const otpChannel = () => {
 
     switch (type) {
 
-      case "change_mobile_google_account":
-      case "change_mobile_email_account":
+      case "change_mobile":
+
+        try {
+
+          if (!userInfo) {
+            throw new Error("You do not have appropriate permission to perform this action")
+          }
+
+          const { mobile, countryCode } = data
+
+          const response = await dispatchCheckUserCanUpdateLoginData({
+            mobile,
+            countryCode
+          })
+
+          console.log(response, "RESS")
+
+          const { data: checkData, error } = response
+
+          if (error) {
+            if (error?.status === 409) {
+              setError("mobile", {
+                message: error?.data?.message || error?.message,
+                type: "random"
+              })
+            } else {
+              handleError(error)
+
+            }
+
+            return
+          }
+
+          const { otpId } = checkData?.data
 
 
-        //First we need to verify if the number is not asssociated with an account of another role, say the user is a driver and trying to change into  a number registered to a rider account, since 
 
-        const isDuplicateOfAnotherRole = await dispatchCheckDuplicateAccountRole({
-          mobile: data.mobile,
-          countryCode: data.countryCode,
-          user: user!
-        }).unwrap()
-
-        if (checkDupAccountError) {
-          //todo
-          //Set the error here 
-        }
-
-        const changeMobileInfoResponse = await dispatchCreateOTP({
-          mobile: data.mobile,
-          countryCode: data.countryCode,
-          type: data.channel
-        })
-
-        const { otpId } = changeMobileInfoResponse.data
-
-        if (otpId) {
           router.replace({
             pathname: "/confirmOTP",
             params: {
+              type: "change_mobile",
               otpId,
-              otpRoute: "SMS",
-              type: "change_mobile_confirm_new_mobile",
+              otpRoute: "SMS"
             }
           })
-        }
 
+
+        } catch (err) {
+          console.log(err, "catch block")
+          handleError(err)
+        }
         break
 
       case "login_mobile":
@@ -249,11 +275,11 @@ const otpChannel = () => {
           return
         }
 
-        console.log("Ziba")
+        console.log("Ziba", data)
 
         //IF there is data here, we should be getting an otpId 
-        const { otpId: createdOtpId } = createOTPData.data.data
-        console.log(createOTPData)
+        console.log(createOTPData, "CREATEDOTP")
+        const { otpId: createdOtpId } = createOTPData.data
 
         router.replace({
           pathname: "/confirmOTP",
@@ -287,8 +313,8 @@ const otpChannel = () => {
 
       <View className='flex-1 h-full mt-8'>
         <Back />
-        <Text variant="heading" className="text-foreground mt-2 mb-2">{canShowOptions ? "One Time Password" : "Verify your mobile number"}</Text>
-        <Text variant="body" className="text-foreground mb-6 font-medium">
+        <Text variant="heading" className="text-foreground mt-8 mb-2">{canShowOptions ? "One Time Password" : "Verify your mobile number"}</Text>
+        <Text variant="body" className="text-muted-foreground mb-6 font-medium">
           {canShowOptions ? "Select a channel  to receive your verification code" : "Enter your mobile number to continue"}
         </Text>
 
@@ -315,7 +341,7 @@ const otpChannel = () => {
                 <View className='flex flex-row justify-between '>
 
                   <View className='flex flex-row items-center gap-x-3'>
-                    <MessageSquare size={28} className={"text-foreground"} />
+                    <MessageSquareMore size={28} className={"text-foreground"} />
                     <Text variant="body" className="text-foreground mb-1 font-medium">Send via SMS  </Text>
                   </View>
 
@@ -350,7 +376,7 @@ const otpChannel = () => {
       </View>
       <View>
 
-        <Text variant="callout" className="text-left text-gray-500 mb-4">
+        <Text variant="callout" className="text-left text-muted-foreground mb-4">
           Enroute will not send anything without your consent.
         </Text>
 

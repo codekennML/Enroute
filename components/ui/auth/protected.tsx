@@ -30,17 +30,17 @@ interface ProtectedStackProps {
 export function ProtectedStack({ component: Component, allowedRoles }: ProtectedStackProps) {
     const { isAuthenticated, roles } = useAuth();
 
-    console.log('ProtectedStack:', { isAuthenticated, roles, allowedRoles });
+    // console.log('ProtectedStack:', { isAuthenticated, roles, allowedRoles });
 
-    if (!isAuthenticated) {
-        console.log('Not authenticated, redirecting to auth');
-        return <Redirect href="../(auth)" />;
-    }
+    // if (!isAuthenticated) {
+    //     console.log('Not authenticated, redirecting to auth');
+    //     return <Redirect href="../(auth)" />;
+    // }
 
-    if (roles && !allowedRoles.includes(roles)) {
-        console.log('User role not allowed, redirecting to 404');
-        return <Redirect href="../404" />;
-    }
+    // if (roles && !allowedRoles.includes(roles)) {
+    //     console.log('User role not allowed, redirecting to 404');
+    //     return <Redirect href="../404" />;
+    // }
 
     console.log('Access granted, rendering component');
     return <Component />;

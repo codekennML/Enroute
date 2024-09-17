@@ -11,7 +11,7 @@ import { ChevronDown, CircleCheck, Search, SlidersHorizontal, X, Receipt, Calend
 import { Skeleton } from '@/components/ui/skeleton';
 import { COLOR_THEME } from '@/lib/constants';
 import { Sheet, useSheetRef } from '@/components/ui/sheets';
-import ScheduleFilters from '@/components/driver/scheduleFilters';
+import ScheduleFilters from '@/components/custom/scheduleFilters';
 import { router } from 'expo-router';
 import { locations } from '@/components/constants/predictions';
 import { Location } from '@/types/types';
@@ -41,25 +41,26 @@ const renderCardSkeletons = (count: number) => {
 }
 
 
-
 const FilterScreen = () => {
 
 
   const filterSheetRef = useSheetRef()
 
-  return <View className='px-2'>
+  return <View className='px-4 pb-2 border-b border-slate-200'>
+    <View className='flex flex-row justify-between items-center'>
+      <Text variant="subhead" className='text-muted-foreground font-medium'>Top rides near you</Text>
+      <Button variant="ghost" size="sm" className="relative flex flex-row items-center justify-center px-4 mr-1.5 rounded-md  w-24 border border-slate-200 p-1" onPress={() => filterSheetRef.current?.present()}>
+        <View className='flex-row items-center gap-x-3'>
 
-    <Button variant="ghost" size="lg" className=" bg-muted relative flex flex-row items-center justify-between pl-4 pr-2 rounded-lg " onPress={() => filterSheetRef.current?.present()}>
-      <View className='flex-row items-center gap-x-3'>
+          <SlidersHorizontal size={16} className='font-bold dark:text-foreground ' />
 
-        <SlidersHorizontal size={20} color="#333333" className='font-bold dark:text-foreground ' />
+          <Text variant="callout" color="primary"
+            className='font-medium dark:text-foreground'>Filters</Text>
+        </View>
 
+      </Button>
+    </View>
 
-        <Text variant="subhead" color="primary"
-          className='font-semibold dark:text-foreground text-sm'> 9 Aug. '24  . In-city . Ikorodu . 100km  </Text>
-      </View>
-
-    </Button>
 
     <Sheet ref={filterSheetRef}
       snapPoints={["100%"]}
@@ -70,12 +71,12 @@ const FilterScreen = () => {
       enableHandlePanningGesture={false}
     >
       <View className="pb-4 w-full">
-        <View className='flex flex-row items-center px-4 mt-4 '>
+        <View className='flex flex-row items-center justify-end px-4 mt-2 bg-red-200 '>
           <Button variant={"ghost"} className='flex-row items-center justify-center' onPress={() => filterSheetRef.current?.close()}>
 
             <X size={24} className='text-foreground ml-auto' />
           </Button>
-          <Text className="text-foreground font-semibold flex-1 text-center" variant="mediumTitle" >Filters </Text>
+          <Text className="text-foreground font-medium flex-1 text-center" variant="callout">Filters </Text>
         </View>
         <View className='mt-3 gap-y-4 px-4'>
           <ScheduleFilters />
@@ -286,14 +287,14 @@ const ScheduleList: React.FC = () => {
   const renderDateItem = useCallback((day: Date) => (
     <Button
       key={format(day, 'yyyy-MM-dd')}
-      className={`items-center mx-2 py-2 px-3 rounded-md ${isSameDay(selectedDate, day) ? 'bg-blue-200' : 'bg-accent'
+      className={`items-center mx-2 py-2 px-3 rounded-md ${isSameDay(selectedDate, day) ? 'bg-primary' : 'bg-accent'
         }`}
       onPress={() => setSelectedDate(day)}
     >
-      <Text className={`text-xs ${isSameDay(selectedDate, day) ? 'text-white' : 'text-foreground'}`}>
+      <Text className={`text-xs ${isSameDay(selectedDate, day) ? 'text-white dark:text-white' : 'text-foreground'}`}>
         {format(day, 'EEE')}
       </Text>
-      <Text className={`text-md font-bold ${isSameDay(selectedDate, day) ? 'text-white' : 'text-gray-800'}`}>
+      <Text className={`text-md font-bold ${isSameDay(selectedDate, day) ? 'text-white dark:text-white ' : 'text-foreground'}`}>
         {format(day, 'd')}
       </Text>
     </Button>
@@ -402,56 +403,50 @@ const ScheduleList: React.FC = () => {
 
 
   const renderScheduleItem: ListRenderItem<DriverSchedule> = useCallback(({ item }) => (
-    <Button onPress={() => handleScheduleBooking(item)} variant={"ghost"} className="bg-white rounded-lg shadow-md p-4 mb-4 ">
+    <Button onPress={() => handleScheduleBooking(item)} variant={"ghost"} className="rounded-lg shadow bg-white  p-4 mb-4  ">
 
-      <View className="mb-3">
+      <View className="mb-2">
 
         <View className='flex-row gap-x-2 items-center'>
           <View className='h-2 w-2 rounded-full bg-destructive'></View>
-          <Text variant="body" className="font-semibold">
+          <Text variant="body" className="font-semibold ">
             1234 Bedford Avenue, Brooklyn, NY,11216
+            {/* Ride to Eti-osa - 8 A.M */}
           </Text>
 
         </View>
       </View>
-      <View className="space-y-1 mb-6">
+      <View className="space-y-1 mb-1">
         <View className="flex-row items-center gap-x-2">
           <MapPin size={18} className="text-foreground/60" />
-          <Text variant="body" className="text-foreground">1234 Bedford Avenue, Brooklyn, NY,11216</Text>
+          <Text variant="body" className="text-foreground dark:text-foreground"> 1234 Bedford Avenue, Brooklyn, NY,11216</Text>
         </View>
         <View className="flex-row items-center gap-x-2">
           <MapPin size={18} className="text-foreground/60" />
-          <Text variant="body" className="text-foreground">{item.carType}</Text>
+          <Text variant="body" className="dark:text-foreground">{item.carType} {`2km away`}</Text>
         </View>
         <View className='flex-row justify-between'>
           <View>
 
             <View className="flex-row items-center gap-x-2">
               <CalendarClock size={18} className="text-foreground/60" />
-              <Text variant="body" className="text-foreground">03 available seats</Text>
+              <Text variant="body" className="text-foreground dark:text-foreground">03 seats left</Text>
             </View>
-            <View className="flex-row items-center gap-x-2">
-              <Clock size={18} className="text-foreground/60" />
-              <Text variant="body" className="text-gray-600">2:30 PM</Text>
-            </View>
+            {/* <View className="flex-row items-center gap-x-2">
+             <Clock size={18} className="text-foreground/60" />
+              <Text variant="body" className="text-foreground d ark:text-foreground">2:30 PM</Text>
+            </View> */}
           </View>
           <View className='flex-col items-end'>
             <Image source={{ uri: item.avatarUrl }} resizeMode='cover' className='rounded-full h-12 w-12' />
           </View>
         </View>
       </View>
-      <View className='flex flex-row justify-between pt-2' >
-        {/* <Text variant="body" className="text-green-500 font-bold">
-                Scheduled
-            </Text> */}
-
-        <Text variant="subhead" className="font-bold " style={{ color: "#007AFF" }}>
+      <View className='flex flex-row justify-between ' >
+        <Text variant="subhead" className="font-bold  dark:text-primary text-primary ">
           {item.amountRange}
         </Text>
-        {/* <Text variant={"body"} className='text-primary font-medium'> <Join></Join>  </Text> */}
-        <Button rounded={"base"} size={"sm"} className=" px-4 flex-row items-center justify-center">
-          <Text className="text-white font-medium" >Join</Text>
-        </Button>
+
 
 
       </View>
@@ -464,12 +459,12 @@ const ScheduleList: React.FC = () => {
   return (
 
 
-    <SafeAreaView className=" bg-gray-100">
+    <SafeAreaView style={{ flex: 1 }} className=" bg-gray-100">
       <View className='pt-4 px-4  flex-row items-center justify-between'>
         <Text className='text-[24px] font-semibold font-header'>Schedule</Text>
         {/* <Text className='text-[28px] font-semibold '>Ride along</Text> */}
         <Button variant={"ghost"} rounded={"base"} className=' mr-3 bg-accent  flex-row items-center gap-x-2'>
-          <CalendarDays size={24} className='text-foreground' />
+          <CalendarDays size={24} className='text-foreground dark:text-muted-foregorund' />
           {/* <Text variant={"subhead"} className='font-semibold'>Filters</Text> */}
         </Button>
       </View>
@@ -484,7 +479,7 @@ const ScheduleList: React.FC = () => {
         <FilterScreen />
       </View>
 
-      <View className='h-full pb-20'>
+      <View className='h-full pb-2'>
         {isLoading ? (
           renderCardSkeletons(6)
         ) : (

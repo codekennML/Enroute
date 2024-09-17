@@ -49,15 +49,19 @@ const AppCamera = forwardRef<AppCameraRef, AppCameraProps>(({ onImageChange, set
 
         capturePhoto: async () => {
             if (cameraRef.current) {
+                console.log("Miller")
                 try {
                     const photo = await cameraRef.current.takePhoto({
                         enableAutoDistortionCorrection: true,
                         flash: 'off',
                     });
 
-                    const filePath = `file://${photo.path}`;
-                    const result = await fetch(filePath);
-                    const data = await result.blob();
+                    const filePath = photo.path;
+
+                    // const result = await fetch(filePath);
+                    // console.log(result, "RESULT")
+                    // const data = await result.blob();
+                    // console.log(photo, "AVINNNNNNNN", result, "MOUIU", data, "mixler")
                     setImage(filePath);
                     setIsCameraActive(false);
                     if (onImageChange) {

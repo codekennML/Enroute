@@ -64,8 +64,8 @@ export const ticketsApi = api.injectEndpoints({
 
 export const {
     useCreateTicketMutation,
-    useGetTicketsQuery,
-    useGetTicketByIdQuery,
-    useUpdateTicketMutation,
-    useDeleteTicketMutation,
+    // useGetTicketsQuery,
+    // useGetTicketByIdQuery,
+    // useUpdateTicketMutation,
+    // useDeleteTicketMutation,
 } = ticketsApi;

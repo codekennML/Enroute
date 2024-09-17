@@ -1,8 +1,9 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import PhoneInput from 'react-native-phone-number-input';
 import { Controller, UseFormSetValue } from 'react-hook-form';
 import { COLOR_THEME } from '@/lib/constants';
+import { Text } from "@/components/ui/text"
 
 
 interface PhoneInputProps<T> {
@@ -19,8 +20,10 @@ const MobileInput = forwardRef((props: PhoneInputProps, ref) => {
     const [inputFocused, setInputFocused] = useState<boolean>(false)
     const internalRef = useRef<PhoneInput>(null);
 
+    console.log()
 
     useLayoutEffect(() => {
+
         if (defaultCode && defaultCountryCode) {
             internalRef.current?.setState({
                 code: defaultCode,
@@ -70,7 +73,7 @@ const MobileInput = forwardRef((props: PhoneInputProps, ref) => {
                         defaultValue={value?.toString()}
                         value={value?.toString()}
                         placeholder=' '
-                        // defaultCode={defaultCode}
+                        defaultCode={defaultCode}
                         layout="first"
 
                         onChangeText={(text: string) => {
@@ -80,21 +83,23 @@ const MobileInput = forwardRef((props: PhoneInputProps, ref) => {
                             console.log(text, internalRef?.current?.getCallingCode())
                             const callingCode = internalRef.current?.getCallingCode()
                             if (callingCode) {
-                                setValue('countryCode', parseInt(callingCode))
+                                setValue('countryCode', callingCode)
                             }
                         }}
+
                         countryPickerProps={{
                             withFilter: false,
                             withAlphaFilter: false,
-                            withCallingCode: true,
+                            withCallingCode: false,
+
 
 
                             theme: {
                                 fontSize: 16,
-                                primaryColor: "#350566",
+                                primaryColor: COLOR_THEME.light.foreground,
                                 primaryColorVariant: "#f1f5f9",
-                                onBackgroundTextColor: '#350566',
-                                fontWeight: "600",
+                                onBackgroundTextColor: COLOR_THEME.light.foreground,
+                                fontWeight: "normal",
 
                             },
                             containerButtonStyle: {
@@ -103,34 +108,27 @@ const MobileInput = forwardRef((props: PhoneInputProps, ref) => {
 
                             filterProps: {
                                 backgroundColor: "transparent",
-                                borderBottomColor: "#350566",
+                                borderBottomColor: COLOR_THEME.light.foreground,
                                 borderBottomWidth: 2,
                                 padding: 10
 
                             },
                             closeButtonImageStyle: {
                                 fontSize: 30,
-                                color: "#2563eb",
+                                color: COLOR_THEME.light.foreground,
                                 marginLeft: "auto"
                             }
-
-
                         }}
 
                         textInputStyle={{
                             width: "100%",
-                            color: "#350566",
+                            color: COLOR_THEME.light.foreground,
                             fontWeight: "600",
-
-
                         }}
 
 
                         containerStyle={{
-
                             width: "100%"
-
-
                         }}
                         countryPickerButtonStyle={{
                             backgroundColor: "transparent",
@@ -145,23 +143,22 @@ const MobileInput = forwardRef((props: PhoneInputProps, ref) => {
                             inputMode: "numeric",
                             value: value,
                             autoFocus: true,
-                            cursorColor: "#350566",
+                            cursorColor: COLOR_THEME.light.foreground,
                             onBlur: handleBlur,
                             onFocus: handleFocus
 
                         }}
                         codeTextStyle={{
-                            color: "#350566",
+                            color: COLOR_THEME.light.foreground,
                             fontWeight: "600"
                         }}
 
                         textContainerStyle={{
-                            backgroundColor: COLOR_THEME.light.accent,
-                            borderColor: errors?.mobile?.message || errors?.countryCode?.message ? "red" : inputFocused ? COLOR_THEME.light.primary : "",
+                            // backgroundColor: COLOR_THEME.light.accent,
+                            borderColor: errors?.mobile?.message || errors?.countryCode?.message ? COLOR_THEME.light.destructive : inputFocused ? COLOR_THEME.light.primary : "",
                             borderRadius: 8,
-                            borderWidth: 2,
-                            paddingVertical: 14,
-
+                            borderWidth: 1,
+                            paddingVertical: 12,
                             width: "100%"
                         }}
                         // disabled={disabled}
@@ -172,7 +169,7 @@ const MobileInput = forwardRef((props: PhoneInputProps, ref) => {
                 )}
             />
             {errors[name] && (
-                <Text style={{ color: 'red' }}>{errors[name] as string}</Text>
+                <Text variant={"footnote"} className='text-destructive mt-2'>{errors[name]?.message as string}</Text>
             )}
         </View>
     );

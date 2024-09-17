@@ -49,24 +49,33 @@ export const countryApi = api.injectEndpoints({
     endpoints: (builder) => ({
         createCountry: builder.mutation<any, CountryPayload>({
             query: (args) => ({
-                url: '/countries/create',
+                url: 'country/create',
                 method: 'POST',
                 body: args,
             }),
             invalidatesTags: ["country"],
         }),
 
-        getCountries: builder.query<any, GetCountriesParams>({
-            query: (args) => ({
-                url: '/countries',
-                params: args,
-            }),
+        getCountries: builder.query<any, GetCountriesParams | undefined>({
+            query: (args) => {
+                console.log(args, "RTr")
+                return ({
+                    url: 'country',
+                    params: args,
+                })
+
+
+            },
+            transformResponse: (response) => {
+                console.log(response, response.data)
+                return response.data
+            },
             providesTags: ["country"],
         }),
 
         getCountryById: builder.query<any, GetCountryByIdParams>({
             query: (args) => ({
-                url: `/countries/${args.id}`,
+                url: `country/${args.id}`,
                 method: 'GET',
             }),
             providesTags: ["country"],
@@ -95,6 +104,7 @@ export const countryApi = api.injectEndpoints({
 export const {
     useCreateCountryMutation,
     useGetCountriesQuery,
+    useLazyGetCountriesQuery,
     useGetCountryByIdQuery,
     //   useUpdateCountryMutation,
     //   useDeleteCountriesMutation,

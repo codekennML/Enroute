@@ -16,8 +16,8 @@ function Slider({
   return (
     <RNSlider
       // thumbTintColor={thumbTintColor ?? Platform.OS === 'ios' ? theme.primary : theme.background}
-      thumbTintColor='#007AFF'
-      minimumTrackTintColor="#007AFF"
+      thumbTintColor={COLOR_THEME.light.primary}
+      minimumTrackTintColor={COLOR_THEME.light.primary}
       maximumTrackTintColor="lightgray"
       {...props}
     />

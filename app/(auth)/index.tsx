@@ -383,9 +383,10 @@ import { router, Stack } from 'expo-router';
 import axios from 'axios';
 // import { useAppDispatch } from '@/redux/hooks';
 import * as SecureStore from 'expo-secure-store'
+import useLocation from '@/lib/useLocation';
 
-
-
+const RIDER_APP_ID = process.env.EXPO_PUBLIC_RIDER_APP_ID
+const DRIVER_APP_ID = process.env.EXPO_PUBLIC_DRIVER_APP_ID
 
 
 const WelcomeScreen = () => {
@@ -394,7 +395,7 @@ const WelcomeScreen = () => {
   const handleDriverAuthentication = async () => {
 
 
-    await SecureStore.setItemAsync("appId", process.env.EXPO_PUBLIC_DRIVER_APP_ID
+    await SecureStore.setItemAsync("app_id", DRIVER_APP_ID
     )
 
     router.push({
@@ -408,15 +409,15 @@ const WelcomeScreen = () => {
 
   const handleRiderAuthentication = async () => {
 
+    console.log(RIDER_APP_ID, DRIVER_APP_ID)
 
-    await SecureStore.setItemAsync("appId", process.env.EXPO_PUBLIC_RIDER_APP_ID)
+    await SecureStore.setItemAsync("app_id", RIDER_APP_ID)
 
     router.push({
-      pathname: "/login",
+      pathname: "/verification/documents",
       params: {
         authType: "rider"
       }
-
     })
   }
 
@@ -425,15 +426,8 @@ const WelcomeScreen = () => {
 
   return (
     <View className="  h-full flex flex-col justify-between  ">
-      <View className=" flex flex-col justify-center items-center flex-1 bg-white">
-        <Image
-          source={require("../../assets/images/welcome.png")}
-          // source={{
-          //     uri: "https://img.freepik.com/premium-vector/woman-driving-car-city-road-dashboard-interior-view-seen-map-tablet_142963-2182.jpg?size=626&ext=jpg&ga=GA1.1.1274777771.1721533660&semt=sph"
-          // }}
-          className="w-3/4 h-1/2"
-          resizeMode="contain"
-        />
+      <View className=" flex flex-col justify-center items-center flex-1 ">
+
       </View>
 
       <View className="  items-center  justify-end pb-10 ">

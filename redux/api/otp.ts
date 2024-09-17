@@ -24,27 +24,27 @@ export const otpApi = api.injectEndpoints({
     endpoints: (builder) => ({
         createOTP: builder.mutation<any, CreateOTPRequest>({
             query: (args) => ({
-                url: '/otp/create_otp',
+                url: 'otp/create_otp',
                 method: 'POST',
-                body: args,
+                data: args,
             }),
             invalidatesTags: ["otp"],
         }),
 
         verifyOTP: builder.mutation<any, VerifyOTPRequest>({
             query: (args) => ({
-                url: '/otp/verify_otp',
+                url: 'otp/verify_otp',
                 method: 'POST',
-                body: args,
+                data: args,
             }),
             invalidatesTags: ["otp"],
         }),
 
         updateOTP: builder.mutation<any, UpdateOTPRequest>({
             query: (args) => ({
-                url: '/otp/update_otp',
+                url: 'otp/update_otp',
                 method: 'POST',
-                body: args,
+                data: args,
             }),
             invalidatesTags: ["otp"],
         }),

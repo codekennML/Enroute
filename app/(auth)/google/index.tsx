@@ -60,7 +60,7 @@ const SignInGoogle = () => {
 
         const { data, error } = response
 
-        const { user, mobile, countryCode, firstName, mobileVerified, otpId, email: googleUserEmail } = data
+        const { user, mobile, countryCode, firstName, mobileVerified, otpId, email: googleUserEmail } = response
 
         if (error) {
             handleError(error)
@@ -80,7 +80,7 @@ const SignInGoogle = () => {
         } else {
 
             router.push({
-                pathname: "/otpChannel",
+                pathname: "/confirmOTP",
                 params: {
                     mobile,
                     countryCode,

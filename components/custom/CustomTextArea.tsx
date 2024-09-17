@@ -33,7 +33,7 @@ const CustomTextArea = forwardRef<TextInput, TextAreaProps>(
                 />
                 {
                     inputSubtitle &&
-                    <Text className='text-xs text-destructive mt-1'>{inputSubtitle}</Text>
+                    <Text className='text-xs mt-1 text-muted dark:text-muted-foreground'>{inputSubtitle}</Text>
                 }
 
             </View>

@@ -45,30 +45,31 @@ const AppBottomSheet = React.forwardRef<
       }
       style={
         style ?? {
-
-
           borderColor: theme.border,
           borderTopStartRadius: 16,
           borderTopEndRadius: 16,
+
           backgroundColor: theme.primary
         }
       }
       // bottomInset={24}
-      // containerStyle={{
-      //   backgroundColor: "pink",
+      containerStyle={{
+        // backgroundColor: "pink",
 
-      //   // maxHeight: "100%",
-      //   minHeight: "100%",
-      //   // height: "90%"
+        // maxHeight: "100%",
+        minHeight: "100%",
+
+        // height: "90%"
 
 
-      // }}
+      }}
 
 
 
       handleIndicatorStyle={
         handleIndicatorStyle ?? {
-          backgroundColor: theme.background
+          backgroundColor: theme.background,
+
         }
       }
       onChange={onChange}

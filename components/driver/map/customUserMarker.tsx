@@ -31,7 +31,7 @@ const CustomUserMarker: React.FC<CustomMarkerProps> = ({ coordinates, arrivalTim
                             <Text className="text-white text-lg">UA</Text>
                         </AvatarFallback>
                     </Avatar> */}
-                <View className="w-8 h-8 bg-[#0077AA] rounded-full  -bottom-1 right-0 border-[4px] border-white" />
+                <View className="w-6 h-6 bg-primary rounded-full  -bottom-1 right-0 border-[4px] border-white" />
                 {/* </View> */}
 
             </View>

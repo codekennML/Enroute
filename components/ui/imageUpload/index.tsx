@@ -1,26 +1,49 @@
 import React, { useState } from 'react';
 import { View, Text, Image, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { Controller } from 'react-hook-form';
+import { Controller, FieldValues, SetFieldValue } from 'react-hook-form';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { Progress } from '../progress';
 import { Button } from '../button';
 import { Plus } from '@/lib/icons/icons';
+import { useUploadSingleFileMutation } from '@/redux/api/upload';
+import { BACKEND_URL } from '@/redux/api/apiSlice';
+import { useSelector } from 'react-redux';
+import { selectUserInfo } from '@/redux/slices/user';
+import { SetErrorFunc } from '../dynamicField';
+import { createImageSchema, imageSchema } from '@/app/verification/schemas';
+import { Octagon } from 'lucide-react-native';
+// import mime from "mime"
 
+const R2_ACCOUNT_ID = process.env.EXPO_PUBLIC_R2_ACCOUNT_ID
+
+console.log(R2_ACCOUNT_ID)
 interface ImageUploadProps {
     name: string;
     control: any;
     label: string;
     errors: any;
+    clearErrors: any
+    setValue: SetFieldValue<FieldValues>
+    setError: SetErrorFunc
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ name, control, label, errors }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ name, control, label, errors, clearErrors, setError, setValue }) => {
+
+
+
+    const { _id } = useSelector(selectUserInfo)
     const [image, setImage] = useState<string | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
 
-    const pickImage = async (onChange: (value: string | null) => void) => {
+    const [triggerUpload] = useUploadSingleFileMutation()
+
+    const pickImage = async (onChange: (value: string) => void) => {
+
+        clearErrors(name)
+
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
@@ -28,50 +51,102 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ name, control, label, errors 
             quality: 1,
         });
 
+        console.log(result.assets)
         if (!result.canceled && result.assets && result.assets.length > 0) {
-            setImage(result.assets[0].uri);
-            uploadImage(result.assets[0].uri, onChange);
+
+
+            const pickedImage = result.assets[0]
+
+            const validation = createImageSchema(5).safeParse({
+                type: pickedImage.mimeType,
+                fileSize: pickedImage.fileSize,
+            });
+
+            if (!validation.success) {
+                console.log("Failed")
+                // alert(validation.error.errors[0].message); 
+                setError(name, {
+                    message: validation.error.errors[0].message,
+                    type: "random"
+                })
+
+                return;
+            }
+            // console.log("Here")
+            // setImage(pickedImage.uri);
+            uploadImage(pickedImage, onChange);
         }
+
     };
 
-    const uploadImage = async (uri: string, onChange: (value: string | null) => void) => {
+    const uploadImage = async (image: ImagePicker.ImagePickerAsset, onChange: (value: string) => void) => {
         setIsUploading(true);
         setUploadProgress(0);
 
-        // Simulate file reading
-        const file = await fetch(uri).then(r => r.blob());
-
         // Create form data
         const formData = new FormData();
-        formData.append('file', file as any);
+
+        formData.append('image', {
+            name: image.uri.split('/').pop(),
+            uri: image.uri,
+            type: image.mimeType
+        } as any);
+
+        const bucketName = "verification"
+        //This is the bucket name 
+        formData.append("name", bucketName)
 
         try {
             // Simulated upload to a CDN
-            const response = await axios.post('https://your-cdn-upload-url.com/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                onUploadProgress: (progressEvent) => {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total ?? 1));
-                    setUploadProgress(percentCompleted / 100);
-                },
-            });
 
-            // Simulated CDN response
-            const cdnUrl = `https://your-cdn.com/images/${response.data.filename}`;
-            setImage(cdnUrl);
-            onChange(cdnUrl);
+            // const response = await triggerUpload({
+            //     file: formData,
+            //     onUploadProgress: (progressEvent) => {
+            //         const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total ?? 1));
+            //         setUploadProgress(percentCompleted / 100);
+            //     },
+            // })
+
+            // const { data, error } = response
+
+            // if (error) throw { error } as unknown
+
+            // const { uri } = data
+
+            // const imageUri = `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${bucketName}/${uri}`
+
+
+            setImage(image.uri)
+
+            onChange(
+                image.uri
+                // imageUri
+            )
+
         } catch (error) {
-            console.error('Upload failed:', error);
-            // Handle error (e.g., show an error message to the user)
+            // setValue("ABCRFG")
+            // onChange("ABGRGET")
+            const { data } = error
+            console.log(error)
+            let message = "Failed to upload file. Please try again"
+            if (data) {
+                message = data?.message
+            }
+
+            setError(name, {
+                message,
+                type: "random"
+            })
+            // console.error('Upload failed:', error);
         } finally {
             setIsUploading(false);
         }
     };
 
-    const removeImage = (onChange: (value: string | null) => void) => {
+    const removeImage = (onChange: (value: string) => void) => {
+        clearErrors(name)
         setImage(null);
-        onChange(null);
+        onChange("");
     };
 
     return (
@@ -86,10 +161,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ name, control, label, errors 
                             <Progress
                                 value={uploadProgress}
                                 className='web:w-[60%]'
-                            //   progress={uploadProgress} 
-                            // size={50} 
-                            // showsText={true} 
-                            // formatText={() => `${Math.round(uploadProgress * 100)}%`}
+
                             />
                             <Text className="text-gray-500 mt-2">Uploading...</Text>
                         </View>
@@ -111,10 +183,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ name, control, label, errors 
                         <Button
                             variant="ghost"
                             onPress={() => pickImage(onChange)}
-                            className=" bg-white rounded-md p-4 flex items-center justify-center h-20  w-[25%] "
+                            className=" bg-accent rounded-md p-4 flex items-center justify-center h-20  w-[25%] "
                         >
-                            <Plus size={32} className='text-foreground' />
-                            {/* <Text className="text-gray-500 mt-2">Tap to select an image</Text> */}
+                            <Plus size={28} className='text-foreground' />
+                            {/* <Text className="text-gray-500 mt-2">Add image</Text> */}
                         </Button>
                     )}
                     {errors[name] && (

@@ -33,6 +33,10 @@ interface GetTownByIdParams {
     id: string;
 }
 
+interface AutoCompleteTown {
+    townName: string;
+}
+
 interface UpdateTownPayload extends Partial<TownPayload> {
     townId: string;
 }
@@ -54,7 +58,7 @@ export const townsApi = api.injectEndpoints({
 
         getTowns: builder.query<any, GetTownsParams>({
             query: (args) => ({
-                url: '/towns',
+                url: 'town',
                 params: args,
             }),
             providesTags: ["town"],
@@ -62,11 +66,20 @@ export const townsApi = api.injectEndpoints({
 
         getTownById: builder.query<any, GetTownByIdParams>({
             query: (args) => ({
-                url: `/towns/${args.id}`,
+                url: `town/${args.id}`,
                 method: 'GET',
             }),
             providesTags: ["town"],
         }),
+
+        autoComplete: builder.query<any, AutoCompleteTown>({
+            query: (args) => ({
+                url: `town/autocomplete/?townName=${args.townName}`,
+                method: 'GET',
+            }),
+            providesTags: ['town'],
+        }),
+
 
         // updateTown: builder.mutation<any, UpdateTownPayload>({
         //   query: (args) => ({

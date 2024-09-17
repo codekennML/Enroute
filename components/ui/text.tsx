@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import * as Slot from '@rn-primitives/slot';
 import { SlottableTextProps, TextRef } from '@rn-primitives/types';
 
-const textVariants = cva('text-foreground ', {
+const textVariants = cva('text-foreground dark:text-foreground', {
   variants: {
     variant: {
       heading: 'text-2xl font-semibold font-header ',

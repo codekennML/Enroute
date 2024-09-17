@@ -20,13 +20,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod"
 import MobileInput from '@/components/ui/phoneInput';
 import { useWrappedErrorHandling } from '@/lib/useErrorHandling';
-import { toastState } from '@/redux/slices/toast';
+
 import formatErrorMessage from '@/lib/formatErrorMessages';
 
 
 const Login = () => {
 
-    // const toast = useSelector(toastState)
+
     const { appId } = useLocalSearchParams<{ appId: string }>()
     const { error, handleError, wrapWithHandling } = useWrappedErrorHandling()
     const [inputFocused, setInputFocused] = useState<string>("")
@@ -51,7 +51,7 @@ const Login = () => {
 
             countryCode: z.string({ message: "Country Code is required" }) // Error for empty string
                 .regex(/^\d+$/, "Country Code is required and must contain only digits") // Error for non-digit characters
-                .refine((value) => value !== undefined, { message: "Country Code is required" }),
+                .refine((value) => value !== undefined, { message: "Country code is required" }),
             countryIdCode: z.string().optional()
         })),
         mode: 'onChange',
@@ -84,7 +84,6 @@ const Login = () => {
                 }
             }
 
-
         }
 
     }, [error])
@@ -107,11 +106,12 @@ const Login = () => {
 
 
         if (error) {
+            // console.log(error)
             handleError(error)
             return
         }
 
-        const { user, mobileVerified } = data?.data
+        const { user, mobileVerified } = data
 
         if (user && mobileVerified) {
             router.push({
@@ -135,9 +135,9 @@ const Login = () => {
                 otpMode: "SMS"
             }).unwrap()
 
-            console.log(response, "ARTERSRRSNS911")
+            console.log(response)
 
-            const { otpId, firstName, mobileVerified } = response.data
+            const { otpId, firstName, mobileVerified } = response
 
             router.push({
                 pathname: "/confirmOTP",
@@ -179,8 +179,6 @@ const Login = () => {
         await handleLogin(parseInt(mobile), parseInt(countryCode))
     }
 
-
-
     const onSubmit = async ({ mobile, countryCode, countryIdCode }) => {
 
         console.log(typeof mobile, typeof countryCode)
@@ -188,8 +186,6 @@ const Login = () => {
         const response = wrappedHandleSubmission(countryCode, mobile);
 
     }
-
-
 
     const handleSignInEmail = () => {
         console.log("Pushed")
@@ -215,32 +211,22 @@ const Login = () => {
     }
 
     return (
-        <View className='flex flex-col h-full  p-4'>
+        <View className='flex flex-col h-full  p-6'>
 
             <View className='mt-[8%]'>
                 <Back />
             </View>
 
-
             <View className="mt-[3%] ">
-                <Text variant="heading" className="text-foreground mb-2">{`Welcome ${appId === "28e99bce1057799ad2f53afa9cbcc8470fc5de293c18c83" ? "driver" : ""} `}</Text>
-                <Text variant="body" className="text-foreground mb-6 font-medium">
+                <Text variant="heading" className="text-foreground mb-2">{authType === "rider" ? "Welcome" : "Welcome Driver"}</Text>
+                <Text variant="body" className="text-muted-foreground mb-6 font-medium">
                     To sign up or log in, enter your mobile number
                 </Text>
 
                 <MobileInput ref={phoneInputRef} setValue={setValue} control={control} name="mobile" errors={errors} handleFocus={handleFocus} handleBlur={handleBlur} inputFocused={inputFocused} />
 
-                {!!errors["mobile"] && (
-                    <Text className='text-destructive text-sm' >{errors["mobile"]?.message as string}</Text>
-                )}
 
-                {
-                    !!errors["countryCode"] && (
-                        <Text className='text-destructive text-sm' >{errors["countryCode"]?.message as string}</Text>
-                    )
-                }
-
-                <Button variant="default" size={"lg"} rounded={"base"} disabled={isLoading} className="mb-4 mt-3 flex items-center justify-center" onPress={handleSubmit(onSubmit)}>
+                <Button variant="default" size={"lg"} rounded={"base"} disabled={isLoading} className="my-5 flex items-center justify-center" onPress={handleSubmit(onSubmit)}>
                     <Text variant={"subhead"} color={"light"} className='font-semibold '> Continue</Text>
                 </Button>
 
@@ -259,20 +245,15 @@ const Login = () => {
                 <SignInGoogle />
 
                 <Button variant="ghost" size={"lg"} rounded={"base"} className="mb-2 flex-row justify-start flex items-center bg-accent"
-                    //  onPress={handleSignInEmail}
-                    onPress={() => {
-                        router.push({
-                            pathname: "(auth)/confirmOTP",
+                    onPress={handleSignInEmail}
 
-                        })
-                    }}
                 >
-                    <Mail size={24} className='text-foreground' />
-                    <Text className='font-medium flex-1 text-center text-foreground ' variant={"footnote"} >Continue with Email</Text>
+                    <Mail size={24} className='text-muted-foreground' />
+                    <Text variant={"subhead"} className='font-medium flex-1 text-center text-foreground text-md' >Continue with Email</Text>
                 </Button>
 
-                <Text variant="footnote" className="mt-4 text-justify font-medium text-foreground">
-                    By signing up, you agree to our <Text variant="footnote" className="text-foreground font-medium">Terms of Service</Text> and <Text variant="footnote" className="text-foreground font-medium">Privacy Policy. </Text>
+                <Text variant="footnote" className="mt-4 text-justify font-medium text-muted-foreground">
+                    By signing up, you agree to our <Text variant="footnote" className="text-primary font-medium">Terms of Service</Text> and <Text variant="footnote" className="text-primary font-medium">Privacy Policy. </Text>
                     Please read our privacy policy to learn how we use your personal data.
                 </Text>
             </View>

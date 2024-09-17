@@ -21,12 +21,9 @@ export type DynamicField = {
     type: string;
     options?: string[];
     schemaType: string;
-    optional?: boolean
+    required: boolean
   };
 };
-
-
-
 
 
 // // Define the structure of our multi-step form

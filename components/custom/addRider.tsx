@@ -238,9 +238,9 @@ const RiderList: React.FC<RiderListProps> = ({ closeAddRiderSheet }) => {
                         className="py-1 px-2 rounded-md flex-row items-center gap-x-2 border-y border-blue-100 mb-8"
                     >
                         <View className="w-14 h-14 rounded-lg flex items-center justify-center">
-                            <UserPlus size={26} className="text-foreground" />
+                            <UserPlus size={22} className="text-foreground" />
                         </View>
-                        <Text variant={"smallTitle"} className="text-white font-semibold">{type === "courier" ? "Add a recipient" : "Add a rider  "}</Text>
+                        <Text variant={"body"} className="text-white font-semibold">{type === "courier" ? "Add a recipient" : "Add a rider  "}</Text>
                     </Button>
                 }
 

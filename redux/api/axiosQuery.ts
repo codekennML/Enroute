@@ -4,9 +4,9 @@ import type { AxiosRequestConfig, AxiosError, AxiosHeaders } from 'axios'
 import * as SecureStore from 'expo-secure-store'
 
 const baseQueryAxiosInstance = axios.create({
-    headers: {
-        "Content-Type": "application/json",
-    },
+    // headers: {
+    //     "Content-Type": "application/json",
+    // },
     withCredentials: true
 })
 
@@ -20,24 +20,29 @@ const axiosBaseQuery =
             data?: AxiosRequestConfig['data']
             params?: AxiosRequestConfig['params']
             headers?: AxiosRequestConfig['headers']
+            onUploadProgress?: AxiosRequestConfig['onUploadProgress']
         },
         unknown,
         unknown
     > =>
-        async ({ url, method, data, params, headers }) => {
+        async ({ url, method, data, params, headers, onUploadProgress }) => {
             try {
                 // Add request interceptor before making the request
                 baseQueryAxiosInstance.interceptors.request.use(async function (config) {
-                    const accessToken = await SecureStore.getItemAsync('X_A_T');
-                    const refreshToken = await SecureStore.getItemAsync('X_R_T');
+                    const accessToken = await SecureStore.getItemAsync('x_a_t');
+                    const refreshToken = await SecureStore.getItemAsync('x_r_t');
+                    const appId = await SecureStore.getItemAsync("app_id") || ""
 
-                    // Add the headers to the request
-                    if (config.headers) {
-                        (config.headers as AxiosHeaders).set('x-a-t', accessToken ?? '');
-                        (config.headers as AxiosHeaders).set('x-r-t', refreshToken ?? '');
+
+                    return {
+                        ...config,
+                        headers: {
+                            ...config.headers,
+                            x_a_t: accessToken,
+                            x_r_t: refreshToken,
+                            app_id: appId
+                        }
                     }
-
-                    return config;
                 }, function (error) {
                     // Do something with request error
                     return Promise.reject(error);
@@ -71,6 +76,7 @@ const axiosBaseQuery =
                     data,
                     params,
                     headers,
+                    onUploadProgress
                 });
 
                 return { data: result.data };

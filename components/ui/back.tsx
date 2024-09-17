@@ -13,12 +13,12 @@ const Back: React.FC<{ iconType?: "arrow" | "close", iconSize?: number }> = ({
         <>
             {
                 router.canGoBack() &&
-                <Button variant={"ghost"} className='flex-row items-center justify-start w-10 mb-4 ' onPress={() => router.back()}>
+                <Button variant={"ghost"} className='flex-row items-center justify-start w-10 ' onPress={() => router.back()}>
                     {
                         iconType === "arrow" ?
-                            <ArrowLeft size={iconSize ?? 35} className="text-foreground" />
+                            <ArrowLeft size={iconSize ?? 28} className="text-foreground" />
                             :
-                            <X size={iconSize ?? 35} className="text-foreground" />
+                            <X size={iconSize ?? 28} className="text-foreground" />
                     }
                 </Button>
             }

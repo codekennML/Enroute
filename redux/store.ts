@@ -7,11 +7,14 @@ import offerReducer from "@/redux/slices/offers"
 import notificationReducer from "@/redux/slices/wsNotifications"
 import websocketReducer from "@/redux/slices/websocket"
 import messagesReducer from "@/redux/slices/messages"
-// import chatsReducer from "@/redux/slices/chats"
+import verificationReducer from "@/redux/slices/verification"
+import busStationReducer from "@/redux/slices/busStations"
 import activeChatReducer from "@/redux/slices/chats"
 import pushNotificationReducer from "@/redux/slices/notifications/app"
 import { api } from "@/redux/api/apiSlice"
 import webSocketMiddleware from './utils/wsMIddleware'
+import verificationFieldsReducer from '@/redux/slices/verifyfields'
+
 
 export const store = configureStore({
     reducer: {
@@ -23,12 +26,15 @@ export const store = configureStore({
         rideNotification: notificationReducer,
         pushNotifications: pushNotificationReducer,
         messages: messagesReducer,
-        // chats: chatsReducer,
+        stations: busStationReducer,
+        verification: verificationReducer,
+        verifyFields: verificationFieldsReducer,
         activeChat: activeChatReducer,
         [api.reducerPath]: api.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat([api.middleware, webSocketMiddleware]),
+    devTools: true
 
 })
 

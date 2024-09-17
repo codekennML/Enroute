@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MapView, { PROVIDER_GOOGLE, Circle, Marker, Camera, Region, MapViewProps } from 'react-native-maps';
-import { Dimensions, Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Dimensions, Modal, ScrollView, StyleSheet, View, Image } from 'react-native';
 import { Sheet, useSheetRef } from '@/components/ui/sheets';
 import { mapStyle } from "@/assets/styles/map"
 import { Text } from "@/components/ui/text"
@@ -31,6 +31,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedReaction, useSharedValue, useAnimatedStyle, interpolate } from 'react-native-reanimated';
 import * as SecureStore from "expo-secure-store"
 import ChatScreen from '@/components/ui/chat/chat';
+import CustomUserMarker from '@/components/driver/map/customUserMarker';
+import CustomMarker from '@/components/driver/map/customMarker';
 // import HorizontalLoader from '@/components/ui/loader/horizontal';
 
 const sampleOffers: OfferCardProps[] = [
@@ -154,16 +156,18 @@ const rideLive = () => {
 
     const animatedPosition = useSharedValue(0)
 
+    const { width, height } = Dimensions.get('window');
+
 
 
     const [showLoader, setShowLoader] = useState(true)
     const [passengersList, setPassengersList] = useState<typeof passengers>(passengers)
     const [openPassengerModal, setOpenPassengerModal] = useState(false)
     const [acceptedOffer, setAcceptedOffer] = useState<OfferCardProps>()
-    const userRideInfo = useSelector(selectSearchInfo)
+    const tripInfo = useSelector(selectSearchInfo)
     const offers = useSelector(selectAllOffers)
     const notification = useSelector(notificationMessage)
-    const { type } = userRideInfo
+    const { type, origin, destination } = tripInfo
     const [isChatModalOpen, setIsChatModalOpen] = useState(false)
     const [canAddOffer, setCanAddOffer] = useState(true)
     const [sheetMainText, setSheetMainText] = useState("")
@@ -214,10 +218,10 @@ const rideLive = () => {
                 payload: {
                     message: {
                         tripId: acceptedOffer?.tripId,
-                        rideId: userRideInfo.rideId,
+                        rideId: tripInfo.rideId,
                         driverId: acceptedOffer?.driverId,
                         topic: "ride_price_accepted",
-                        // type: userRideInfo.type,
+                        // type: tripInfo.type,
                         driverPushId: acceptedOffer?.driverPushId
                     }
                 }
@@ -274,27 +278,68 @@ const rideLive = () => {
         //store the accepted offer in async storage 
     }, [acceptedOffer, notification, offers])
 
+    const ASPECT_RATIO = width / height;
+    const LATITUDE_DELTA = 0.085;
+    const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-    useEffect(() => {
-        let currentIndex = 0;
-        let intervalId;
 
-        const addDriverOffer = () => {
-            if (canAddOffer) {
-                dispatch(addOffer(sampleOffers[currentIndex]));
-                currentIndex = (currentIndex + 1) % sampleOffers.length;
-            } else {
-                clearInterval(intervalId); // Clear interval if canAddOffer becomes false
-            }
-        };
+    const [state, setState] = useState({
+        region: {
+            latitude: destination?.coordinates[0]!,
+            longitude: destination?.coordinates[1]!,
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA
 
-        if (canAddOffer) {
-            intervalId = setInterval(addDriverOffer, 5000); // 5 seconds
         }
+    })
 
-        // Cleanup function to clear the interval when the component unmounts or canAddOffer changes
-        return () => clearInterval(intervalId);
-    }, [canAddOffer, dispatch]);
+    const mapRef = useRef<MapView | null>(null);
+
+    console.log(destination, origin, "WEXLER")
+
+    // useEffect(() => {
+
+
+    //     if (mapRef.current) {
+    //         // Animate to show both origin and destination
+    //         const edgePadding = { top: 150, right: 50, bottom: 50, left: 50 };
+
+    //         mapRef.current.fitToCoordinates(
+    //             [
+    //                 { latitude: destination?.coordinates[0]!, longitude: destination?.coordinates[1]! },
+    //                 { latitude: origin?.coordinates[0]!, longitude: origin?.coordinates[1]! }
+    //             ],
+    //             {
+    //                 edgePadding,
+    //                 animated: true
+    //             }
+    //         );
+    //     }
+    // }, []);
+
+
+
+
+    // useEffect(() => {
+    //     let currentIndex = 0;
+    //     let intervalId;
+
+    //     const addDriverOffer = () => {
+    //         if (canAddOffer) {
+    //             dispatch(addOffer(sampleOffers[currentIndex]));
+    //             currentIndex = (currentIndex + 1) % sampleOffers.length;
+    //         } else {
+    //             clearInterval(intervalId); // Clear interval if canAddOffer becomes false
+    //         }
+    //     };
+
+    //     if (canAddOffer) {
+    //         intervalId = setInterval(addDriverOffer, 5000); // 5 seconds
+    //     }
+
+    //     // Cleanup function to clear the interval when the component unmounts or canAddOffer changes
+    //     return () => clearInterval(intervalId);
+    // }, [canAddOffer, dispatch]);
 
     const animatedStyles = useAnimatedStyle(() => {
         console.log(animatedPosition.value)
@@ -306,8 +351,8 @@ const rideLive = () => {
     const animatedMapHeight = useAnimatedStyle(() => {
         // console.log(animatedPosition.value, "vERSTYSYYS", screenHeight)
         return {
-            // height: animatedPosition.value - 10 
-            height: "100%"
+            height: animatedPosition.value - 10
+            // height: "100%"
         };
     });
     const animatedPriceCardHeight = useAnimatedStyle(() => {
@@ -318,22 +363,74 @@ const rideLive = () => {
     });
 
     return (
+
+
         <View style={{ position: "relative", flex: 1 }}>
             <Animated.View
 
                 style={[
                     {
                         position: "absolute",
-                        // flex: 1,
+                        // height: "100%",
                         zIndex: 0,
                         top: 0,
                         width: "100%",
-                        // height: "100%"
                     },
                     animatedMapHeight
                 ]}
             >
-                {/* <Map /> */}
+                <View className='flex-1 relative'>
+
+
+                    <MapView
+
+                        style={{
+                            flex: 1,
+                            height: "100%",
+                            width: "100%"
+                        }}
+                        ref={mapRef}
+                        zoomEnabled={false}
+                        scrollEnabled={false}
+                        rotateEnabled={false}
+                        provider={PROVIDER_GOOGLE}
+                        initialRegion={state.region}
+                        className={`h-full w-full`}
+                        customMapStyle={mapStyle}
+                    >
+                        <Marker
+                            coordinate={{ latitude: destination?.coordinates[0], longitude: destination?.coordinates[1] }}
+                        >
+                            <View className=''>
+
+                                <Image source={require("../assets/images/mappin.png")} style={styles.markerImage} />
+                                <View className=" bg-primary px-2 py-1 rounded-xl text-white mt-2 " >
+                                    <Text variant={"callout"} className="text-white dark:text-white font-medium" style={{
+                                        color: "white"
+                                    }}>
+
+                                        Arrive at 4:24pm
+                                    </Text>
+                                </View>
+
+
+                            </View>
+                            {/* <View>
+
+
+                        </View> */}
+
+
+
+                            {/* 
+                        <CustomMarker coordinate={{ latitude: destination?.coordinates[0], longitude: destination?.coordinates[1] }} arrivalTime={10} /> */}
+                        </Marker>
+
+
+                    </MapView>
+
+
+                </View>
             </Animated.View>
 
             <Button variant="ghost" className='absolute top-10 left-4 w-10 h-10 rounded-full shadow-md flex items-center justify-center z-5 bg-white  '
@@ -347,58 +444,10 @@ const rideLive = () => {
                     })
                 }}
             >
-
                 <ArrowLeft size={18} className='text-foreground p-3' />
 
             </Button>
 
-            {/* Drivers prices */}
-            <Animated.View className=' absolute top-20 shadow-sm  overflow-scroll  w-full bg-transparent' style={[
-                {
-
-                    zIndex: 2
-                },
-                animatedPriceCardHeight
-            ]
-            }>
-
-
-                {offers?.length > 0 && (
-                    <ScrollView horizontal={false} >
-                        {offers.map((offer) => (
-                            <View key={offer.id} className='px-4'>
-                                <DriverPriceCard offer={offer} setAcceptedOffer={setAcceptedOffer} />
-                            </View>
-                        ))}
-                    </ScrollView>
-                )}
-
-            </Animated.View>
-
-
-
-            <Modal
-                visible={isChatModalOpen}
-                animationType="slide"
-                transparent={true}
-                onRequestClose={() => setIsChatModalOpen(false)}
-            >
-                <View style={{
-                    flex: 1,
-                    // justifyContent: 'center'
-                    //   , 
-                    alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'
-                }}>
-                    <View style={{
-                        backgroundColor: 'white', paddingHorizontal: 0, paddingTop: 10
-                        , borderRadius: 0, width: '100%', height: "100%"
-                    }}>
-
-                        <ChatScreen setIsModalOpen={setIsChatModalOpen} />
-
-                    </View>
-                </View>
-            </Modal >
 
 
             <AppBottomSheet
@@ -411,16 +460,22 @@ const rideLive = () => {
                 enableContentPanningGesture={true}
                 pressBehaviour='none'
                 enableTouchThrough={true}
+                containerStyle={{
+                    borderTopLeftRadius: 20,
+                }}
                 handleIndicatorStyle={{
                     backgroundColor: "light-gray",
                     padding: 0,
-                    margin: 0
+                    margin: 0,
+
                 }} style={{
-                    zIndex: 12
+                    zIndex: 12,
+                    borderTopLeftRadius: 20,
+
                 }}
 
                 animatedPosition={animatedPosition}
-                backgroundStyle={{ borderRadius: 10 }}
+                backgroundStyle={{ borderRadius: 10, borderTopLeftRadius: 20, }}
                 animateOnMount={false}
 
             >
@@ -431,28 +486,19 @@ const rideLive = () => {
 
                 }} >
 
-
                     <>
 
 
-                        {
-                            showLoader &&
-                            <View className='mb-3'>
 
-                                <View>
-                                    <HorizontalLoader onDismiss={() => setShowLoader(false)} />
-                                </View>
-                            </View>
-                        }
                         {sheetScreenToRender === "raiseFare" &&
                             <View className='w-full flex flex-row  items-center '>
                                 <View className="flex-1 text-center">
-                                    <Text variant={'smallTitle'} className='text-[18px] text-center text-primary' style={{ color: "#007AFF" }}>
+                                    <Text variant={'subhead'} className='text-[18px] text-center text-primary font-semibold'>
 
                                         {sheetMainText}
 
                                     </Text>
-                                    <Text variant={"callout"} className='font-medium text-center mt-1 px-2'>{sheetSubtitle}</Text>
+                                    <Text variant={"callout"} className='font-medium text-center mt-2 px-2 text-muted-foreground dark:text-muted-foregound'>{sheetSubtitle}</Text>
                                 </View>
 
 
@@ -468,7 +514,15 @@ const rideLive = () => {
                                 <RaiseFare />
                             </View>
                         }
+                        {
+                            showLoader &&
+                            <View className='mb-0'>
 
+                                <View>
+                                    <HorizontalLoader onDismiss={() => setShowLoader(false)} />
+                                </View>
+                            </View>
+                        }
 
                         {
                             sheetScreenToRender === "driverIncoming" && <DriverIncoming timeToArrival={6} carName={'Mercedes Benz GLE 450'} licensePlate={'MA53G7'} openPassengersSheet={openPassengersSheet} openCancelRideSheet={openCancelRideSheet} openChatModal={setIsChatModalOpen} />
@@ -543,6 +597,7 @@ const rideLive = () => {
 
                     </>
 
+
                 </BottomSheetScrollView>
 
             </AppBottomSheet>
@@ -550,7 +605,6 @@ const rideLive = () => {
 
 
         </View>
-
 
     )
 
@@ -562,6 +616,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         // position: "relative"
+    },
+    markerImage: {
+        width: 45,
+        height: 60,
+        marginLeft: 30
     },
 
 });
